@@ -1,0 +1,195 @@
+#!/usr/bin/env bash
+# Instala el sitio local o lo pone al día. Es idempotente: se puede correr las veces que sea,
+# no duplica nada y no borra contenido.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+TITULO="CampoData"
+IDIOMA="es_CL"
+TEMA="campodata"
+PORTADA_SLUG="inicio"
+PORTADA_CONTENIDO='<!-- wp:pattern {"slug":"campodata/inicio-provisional"} /-->'
+
+paso_actual=""
+paso() {
+	paso_actual="$1"
+	printf '\n==> %s\n' "$1"
+}
+aviso() { printf 'AVISO: %s\n' "$*" >&2; }
+detener() {
+	printf '\nERROR: %s\n' "$*" >&2
+	exit 1
+}
+trap 'printf "\nERROR: bin/setup se detuvo en el paso \"%s\". Revisa el mensaje de arriba; si el problema es de los contenedores, mira docker compose logs.\n" "$paso_actual" >&2' ERR
+
+# WP-CLI sin leer la entrada estándar, para que no se coma la de los bucles. La URL global
+# le da a PHP el HTTP_HOST que algunas funciones del core esperan (sin ella, avisos en la instalación).
+wp() { bin/wp --url="$URL" "$@" </dev/null; }
+
+# Consultas de sí o no de WP-CLI (is-installed, is-active...). Cuando la respuesta es "no",
+# Docker Compose imprime una línea en blanco en stderr: se descarta.
+wp_si() { wp "$@" 2>/dev/null; }
+
+# Líneas "<slug> <versión>" de los archivos de plugins, sin vacías ni comentarios.
+plugins_declarados() { grep -hvE '^[[:space:]]*(#|$)' "$@" || true; }
+
+paso "Revisando .env"
+[ -f .env ] || detener "No existe .env. Créalo con 'cp .env.example .env', completa las contraseñas y vuelve a correr bin/setup."
+set -a
+# shellcheck source=/dev/null
+. ./.env
+set +a
+for variable in WP_ADMIN_USER WP_ADMIN_PASSWORD WP_ADMIN_EMAIL DB_NAME DB_USER DB_PASSWORD DB_ROOT_PASSWORD; do
+	[ -n "${!variable:-}" ] || detener "Falta $variable en .env. Complétala y vuelve a correr bin/setup."
+done
+[ "$WP_ADMIN_USER" != "admin" ] || detener "WP_ADMIN_USER no puede ser \"admin\". Elige otro nombre en .env."
+WP_PORT="${WP_PORT:-8081}"
+URL="http://localhost:${WP_PORT}"
+echo "Variables completas."
+
+paso "Levantando los contenedores"
+docker compose up -d --wait \
+	|| detener "No se pudieron levantar los contenedores. Revisa que Docker esté corriendo y que el puerto $WP_PORT esté libre (se cambia con WP_PORT en .env)."
+
+paso "Esperando wp-config.php"
+for _ in $(seq 60); do
+	docker compose exec -T wordpress test -f wp-config.php && break
+	sleep 1
+done
+docker compose exec -T wordpress test -f wp-config.php \
+	|| detener "El contenedor wordpress no creó wp-config.php en 60 segundos. Revisa docker compose logs wordpress."
+echo "wp-config.php listo."
+
+paso "Instalando WordPress"
+if wp_si core is-installed; then
+	echo "Ya estaba instalado."
+else
+	wp core install --url="$URL" --title="$TITULO" --admin_user="$WP_ADMIN_USER" \
+		--admin_password="$WP_ADMIN_PASSWORD" --admin_email="$WP_ADMIN_EMAIL" --skip-email
+	# Contenido de ejemplo del core. Solo se borra en esta primera instalación;
+	# el borrador de la política de privacidad se queda.
+	ejemplos="$(wp post list --post_type=post --name=hello-world --field=ID) $(wp post list --post_type=page --name=sample-page --field=ID)"
+	if [ -n "${ejemplos// /}" ]; then
+		# shellcheck disable=SC2086 # Son IDs numéricos: se separan a propósito.
+		wp post delete $ejemplos --force
+	fi
+fi
+
+paso "Revisando la URL del sitio"
+url_actual=$(wp option get siteurl)
+if [ "$url_actual" = "$URL" ]; then
+	echo "La URL es $URL."
+else
+	wp search-replace "$url_actual" "$URL" --skip-columns=guid --report-changed-only
+fi
+
+paso "Idioma ($IDIOMA)"
+# Las traducciones de los plugins se instalan después, en el paso de plugins, para incluir los recién instalados.
+if wp_si language core is-installed "$IDIOMA" || wp language core install "$IDIOMA"; then
+	# WPLANG es el idioma activo del sitio. Se fija directo porque "wp site switch-language"
+	# llena la salida de avisos internos de WP-CLI con PHP 8.4.
+	wp option update WPLANG "$IDIOMA" --quiet
+	echo "Idioma del sitio: $IDIOMA."
+else
+	aviso "No se pudo instalar el idioma $IDIOMA (¿sin internet?). El sitio sigue en inglés; vuelve a correr bin/setup cuando haya conexión."
+fi
+
+paso "Opciones del sitio"
+while read -r opcion valor; do
+	wp option update "$opcion" "$valor" --quiet
+done <<'OPCIONES'
+timezone_string America/Santiago
+date_format d-m-Y
+time_format H:i
+start_of_week 1
+default_comment_status closed
+default_ping_status closed
+blog_public 0
+OPCIONES
+echo "Zona horaria, formatos de fecha, comentarios e indexación al día."
+
+paso "Enlaces permanentes"
+wp rewrite structure '/%postname%/' --quiet
+wp rewrite flush --quiet
+echo "Estructura /%postname%/."
+
+paso "Plugins"
+for plugin in akismet hello; do
+	if wp_si plugin is-installed "$plugin"; then
+		wp plugin delete "$plugin"
+	fi
+done
+
+archivos_de_plugins="config/plugins.txt"
+if [ "$(wp eval 'echo wp_get_environment_type();')" = "local" ]; then
+	archivos_de_plugins="$archivos_de_plugins config/plugins-dev.txt"
+fi
+
+declarados=""
+# shellcheck disable=SC2086 # Rutas sin espacios: se separan a propósito.
+while read -r slug version resto; do
+	if [ -z "$version" ] || [ -n "$resto" ]; then
+		detener "Línea inválida en $archivos_de_plugins: \"$slug $version $resto\". El formato es <slug> <versión>."
+	fi
+	declarados="$declarados$slug"$'\n'
+	if [ "$(wp plugin get "$slug" --field=version 2>/dev/null)" = "$version" ]; then
+		wp_si plugin is-active "$slug" || wp plugin activate "$slug"
+		echo "$slug $version ya estaba instalado."
+	else
+		wp plugin install "$slug" --version="$version" --force --activate
+	fi
+done < <(plugins_declarados $archivos_de_plugins)
+
+no_declarados=$(wp plugin list --fields=name,status --format=csv \
+	| awk -F, 'NR > 1 && $2 != "must-use" && $2 != "dropin" { print $1 }' \
+	| grep -vxF -f <(printf '%s' "$declarados") || true)
+if [ -n "$no_declarados" ]; then
+	aviso "Hay plugins instalados que no están en config/plugins*.txt (no se borran): $(paste -sd ' ' <<<"$no_declarados")"
+fi
+
+if wp_si language core is-installed "$IDIOMA"; then
+	if wp language plugin install --all "$IDIOMA" --quiet >/dev/null; then
+		echo "Traducciones de los plugins al día."
+	else
+		aviso "No se pudieron instalar las traducciones de los plugins. Vuelve a correr bin/setup más tarde."
+	fi
+fi
+
+paso "Tema"
+wp_si theme is-active "$TEMA" || wp theme activate "$TEMA"
+# El tema por defecto más reciente del core se queda como respaldo; los demás del core se borran.
+respaldo=$(wp eval 'echo WP_DEFAULT_THEME;')
+sobrantes=$(wp theme list --status=inactive --field=name | grep -E '^twenty' | grep -vxF "$respaldo" || true)
+if [ -n "$sobrantes" ]; then
+	# shellcheck disable=SC2086 # Slugs sin espacios: se separan a propósito.
+	wp theme delete $sobrantes
+fi
+echo "Tema activo: $TEMA. Respaldo: $respaldo."
+
+paso "Portada"
+portada=$(wp post list --post_type=page --name="$PORTADA_SLUG" --post_status=any --field=ID --posts_per_page=1)
+if [ -z "$portada" ]; then
+	portada=$(wp post create --post_type=page --post_status=publish --post_title="Inicio" \
+		--post_name="$PORTADA_SLUG" --post_content="$PORTADA_CONTENIDO" --porcelain)
+	echo "Página \"Inicio\" creada (ID $portada)."
+else
+	echo "La página \"Inicio\" ya existía (ID $portada)."
+fi
+wp option update show_on_front page --quiet
+wp option update page_on_front "$portada" --quiet
+
+paso "Versión del core"
+version_instalada=$(wp core version)
+# La imagen guarda una copia intacta del core en /usr/src/wordpress (ya no define WORDPRESS_VERSION).
+version_imagen=$(docker compose exec -T wordpress php -r 'include "/usr/src/wordpress/wp-includes/version.php"; echo $wp_version;')
+if [ "$version_instalada" = "$version_imagen" ]; then
+	echo "WordPress $version_instalada, igual que la imagen."
+else
+	aviso "El core instalado es $version_instalada, pero compose.yaml usa $version_imagen. Para actualizarlo:"
+	aviso "  bin/wp core update --version=$version_imagen && bin/wp core update-db   (detalles en el README)"
+fi
+
+paso "Listo"
+echo "Sitio:          $URL"
+echo "Administración: $URL/wp-admin/"
+echo "Usuario:        $WP_ADMIN_USER (la contraseña está en .env)"

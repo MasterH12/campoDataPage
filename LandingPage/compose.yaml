@@ -1,0 +1,69 @@
+# Entorno local de CampoData. Las versiones viven solo aquí (ver docs/DECISIONS.md).
+name: campodata
+
+x-wordpress-env: &wordpress-env
+  WORDPRESS_DB_HOST: db
+  WORDPRESS_DB_NAME: ${DB_NAME}
+  WORDPRESS_DB_USER: ${DB_USER}
+  WORDPRESS_DB_PASSWORD: ${DB_PASSWORD}
+  # El wp-config.php de la imagen ya define WP_DEBUG a partir de esta variable: un segundo
+  # define en WORDPRESS_CONFIG_EXTRA se ignora (WP_DEBUG queda en false) y solo genera un aviso.
+  WORDPRESS_DEBUG: "1"
+  WORDPRESS_CONFIG_EXTRA: |
+    define( 'WP_ENVIRONMENT_TYPE', 'local' );
+    define( 'WP_DEBUG_LOG', true );
+    define( 'WP_DEBUG_DISPLAY', false );
+    define( 'SCRIPT_DEBUG', true );
+    define( 'DISALLOW_FILE_EDIT', true );
+    define( 'AUTOMATIC_UPDATER_DISABLED', true );
+    define( 'WP_POST_REVISIONS', 20 );
+    define( 'WP_DEVELOPMENT_MODE', 'theme' );
+
+x-wordpress-volumes: &wordpress-volumes
+  - wordpress_data:/var/www/html
+  - ./wp-content/themes/campodata:/var/www/html/wp-content/themes/campodata
+  - ./wp-content/mu-plugins:/var/www/html/wp-content/mu-plugins
+
+services:
+  db:
+    image: mariadb:11.8.9
+    environment:
+      MARIADB_DATABASE: ${DB_NAME}
+      MARIADB_USER: ${DB_USER}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  wordpress:
+    image: wordpress:7.1.3-php8.4-apache
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${WP_PORT:-8081}:80"
+    environment: *wordpress-env
+    volumes: *wordpress-volumes
+
+  wpcli:
+    image: wordpress:cli-2.12.0-php8.4
+    profiles: ["cli"]
+    # Mismo UID que www-data en la imagen de Apache, para que ambos puedan escribir los mismos archivos.
+    user: "33:33"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      <<: *wordpress-env
+      # Con el UID 33 no hay carpeta personal y WP-CLI no puede crear su caché en /.wp-cli.
+      WP_CLI_CACHE_DIR: /tmp/wp-cli-cache
+    volumes: *wordpress-volumes
+
+volumes:
+  db_data:
+  wordpress_data:

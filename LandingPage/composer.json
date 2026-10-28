@@ -1,0 +1,28 @@
+{
+	"name": "campodata/landing-page",
+	"description": "Landing page de CampoData en WordPress. Composer solo se usa para las herramientas de calidad del código.",
+	"type": "project",
+	"license": "GPL-2.0-or-later",
+	"require-dev": {
+		"dealerdirect/phpcodesniffer-composer-installer": "^1.2",
+		"phpcompatibility/phpcompatibility-wp": "^2.1",
+		"wp-coding-standards/wpcs": "^3.4"
+	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		},
+		"platform": {
+			"php": "8.3"
+		},
+		"sort-packages": true
+	},
+	"scripts": {
+		"lint": "phpcs",
+		"lint:fix": "phpcbf"
+	},
+	"scripts-descriptions": {
+		"lint": "Revisa el código del tema y del mu-plugin con PHPCS.",
+		"lint:fix": "Corrige automáticamente lo que PHPCS puede corregir."
+	}
+}

@@ -1,0 +1,231 @@
+{
+	"$schema": "https://schemas.wp.org/wp/7.1/theme.json",
+	"version": 3,
+	"settings": {
+		"appearanceTools": true,
+		"useRootPaddingAwareAlignments": true,
+		"layout": {
+			"contentSize": "720px",
+			"wideSize": "1200px"
+		},
+		"color": {
+			"custom": false,
+			"customGradient": false,
+			"defaultPalette": false,
+			"defaultGradients": false,
+			"defaultDuotone": false,
+			"palette": [
+				{
+					"slug": "base",
+					"name": "Base",
+					"color": "#ffffff"
+				},
+				{
+					"slug": "contraste",
+					"name": "Contraste",
+					"color": "#1a1a1a"
+				},
+				{
+					"slug": "primario",
+					"name": "Primario",
+					"color": "#3d3d3d"
+				},
+				{
+					"slug": "secundario",
+					"name": "Secundario",
+					"color": "#5c5c5c"
+				},
+				{
+					"slug": "acento",
+					"name": "Acento",
+					"color": "#7a7a7a"
+				},
+				{
+					"slug": "suave",
+					"name": "Suave",
+					"color": "#f0f0f0"
+				}
+			]
+		},
+		"typography": {
+			"fluid": true,
+			"customFontSize": false,
+			"defaultFontSizes": false,
+			"fontFamilies": [
+				{
+					"slug": "texto",
+					"name": "Texto",
+					"fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif"
+				},
+				{
+					"slug": "titulos",
+					"name": "Títulos",
+					"fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif"
+				}
+			],
+			"fontSizes": [
+				{
+					"slug": "small",
+					"name": "Pequeño",
+					"size": "0.875rem",
+					"fluid": false
+				},
+				{
+					"slug": "medium",
+					"name": "Mediano",
+					"size": "1.125rem",
+					"fluid": {
+						"min": "1rem",
+						"max": "1.125rem"
+					}
+				},
+				{
+					"slug": "large",
+					"name": "Grande",
+					"size": "1.5rem",
+					"fluid": {
+						"min": "1.25rem",
+						"max": "1.5rem"
+					}
+				},
+				{
+					"slug": "x-large",
+					"name": "Muy grande",
+					"size": "2.25rem",
+					"fluid": {
+						"min": "1.75rem",
+						"max": "2.25rem"
+					}
+				},
+				{
+					"slug": "xx-large",
+					"name": "Enorme",
+					"size": "3.25rem",
+					"fluid": {
+						"min": "2.25rem",
+						"max": "3.25rem"
+					}
+				}
+			]
+		},
+		"spacing": {
+			"defaultSpacingSizes": false,
+			"customSpacingSize": false,
+			"spacingSizes": [
+				{
+					"slug": "20",
+					"name": "2X pequeño",
+					"size": "0.5rem"
+				},
+				{
+					"slug": "30",
+					"name": "X pequeño",
+					"size": "1rem"
+				},
+				{
+					"slug": "40",
+					"name": "Pequeño",
+					"size": "clamp(1.25rem, 2vw, 1.5rem)"
+				},
+				{
+					"slug": "50",
+					"name": "Mediano",
+					"size": "clamp(1.5rem, 3vw, 2.25rem)"
+				},
+				{
+					"slug": "60",
+					"name": "Grande",
+					"size": "clamp(2rem, 5vw, 3.5rem)"
+				},
+				{
+					"slug": "70",
+					"name": "X grande",
+					"size": "clamp(3rem, 7vw, 5rem)"
+				},
+				{
+					"slug": "80",
+					"name": "2X grande",
+					"size": "clamp(4rem, 10vw, 7.5rem)"
+				}
+			]
+		}
+	},
+	"styles": {
+		"color": {
+			"background": "var:preset|color|base",
+			"text": "var:preset|color|contraste"
+		},
+		"spacing": {
+			"blockGap": "var:preset|spacing|40",
+			"padding": {
+				"top": "0",
+				"right": "var:preset|spacing|40",
+				"bottom": "0",
+				"left": "var:preset|spacing|40"
+			}
+		},
+		"typography": {
+			"fontFamily": "var:preset|font-family|texto",
+			"fontSize": "var:preset|font-size|medium",
+			"lineHeight": "1.6"
+		},
+		"elements": {
+			"link": {
+				"color": {
+					"text": "var:preset|color|primario"
+				},
+				":hover": {
+					"color": {
+						"text": "var:preset|color|contraste"
+					}
+				}
+			},
+			"button": {
+				"color": {
+					"background": "var:preset|color|primario",
+					"text": "var:preset|color|base"
+				},
+				":hover": {
+					"color": {
+						"background": "var:preset|color|contraste",
+						"text": "var:preset|color|base"
+					}
+				}
+			},
+			"heading": {
+				"typography": {
+					"fontFamily": "var:preset|font-family|titulos",
+					"fontWeight": "700",
+					"lineHeight": "1.2"
+				}
+			},
+			"h1": {
+				"typography": {
+					"fontSize": "var:preset|font-size|xx-large"
+				}
+			},
+			"h2": {
+				"typography": {
+					"fontSize": "var:preset|font-size|x-large"
+				}
+			},
+			"h3": {
+				"typography": {
+					"fontSize": "var:preset|font-size|large"
+				}
+			}
+		}
+	},
+	"templateParts": [
+		{
+			"name": "header",
+			"title": "Encabezado",
+			"area": "header"
+		},
+		{
+			"name": "footer",
+			"title": "Pie de página",
+			"area": "footer"
+		}
+	]
+}

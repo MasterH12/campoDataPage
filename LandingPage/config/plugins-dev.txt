@@ -1,0 +1,8 @@
+# Plugins solo para el entorno local. Una línea por plugin: <slug> <versión>
+# Las líneas vacías y las que empiezan con # se ignoran.
+
+# Pasa al tema los cambios hechos en el Editor del sitio.
+create-block-theme 2.10.2
+
+# Depura consultas, hooks y errores de PHP.
+query-monitor 4.1.1

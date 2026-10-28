@@ -1,0 +1,21 @@
+# Estándar de WordPress: tabulaciones en PHP, JS, CSS, HTML y JSON.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = tab
+
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+# Lo genera Composer, siempre con 4 espacios.
+[composer.lock]
+indent_style = space
+indent_size = 4

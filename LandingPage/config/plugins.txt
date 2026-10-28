@@ -1,0 +1,3 @@
+# Plugins de producción. Una línea por plugin: <slug> <versión>
+# Las líneas vacías y las que empiezan con # se ignoran.
+# Cada plugin nuevo necesita una entrada en docs/DECISIONS.md (ver README).

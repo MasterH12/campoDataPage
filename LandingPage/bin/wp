@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# WP-CLI dentro del contenedor wpcli. Uso: bin/wp <comando> [argumentos]
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+# Solo se pide una terminal (TTY) cuando hay una de verdad. Sin TTY (-T), la salida
+# sirve para otros scripts: con TTY, Docker agrega retornos de carro a cada línea.
+if [ -t 0 ] && [ -t 1 ]; then
+	exec docker compose --progress quiet --profile cli run --rm wpcli wp "$@"
+else
+	exec docker compose --progress quiet --profile cli run --rm -T wpcli wp "$@"
+fi

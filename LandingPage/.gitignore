@@ -1,0 +1,16 @@
+# Secretos y configuración de cada máquina
+.env
+
+# Dependencias
+/vendor/
+/node_modules/
+
+# Registros, volcados de base de datos y respaldos
+*.log
+*.sql
+*.sql.gz
+/backups/
+
+# Archivos de WordPress que no son código propio
+/wp-content/uploads/
+/wp-content/plugins/

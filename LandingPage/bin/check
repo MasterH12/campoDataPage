@@ -1,0 +1,149 @@
+#!/usr/bin/env bash
+# Verificación rápida del sitio local. Termina con código distinto de 0 si algo falla.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+TEMA="campodata"
+
+fallas=0
+ok() { printf '  ✔ %s\n' "$*"; }
+falla() {
+	printf '  ✘ %s\n' "$*"
+	fallas=$((fallas + 1))
+}
+aviso() { printf '  ! %s\n' "$*"; }
+detener() {
+	printf 'ERROR: %s\n' "$*" >&2
+	exit 1
+}
+
+[ -f .env ] || detener "No existe .env. Créalo desde .env.example y corre bin/setup."
+set -a
+# shellcheck source=/dev/null
+. ./.env
+set +a
+URL="http://localhost:${WP_PORT:-8081}"
+
+wp() { bin/wp --url="$URL" "$@" </dev/null; }
+wp_si() { wp "$@" >/dev/null 2>&1; }
+
+html=$(mktemp)
+trap 'rm -f "$html"' EXIT
+# Pide una URL del sitio, deja el HTML en $html y devuelve el código HTTP (000 si no responde).
+pedir() { curl -sS -o "$html" -w '%{http_code}' "$URL$1" 2>/dev/null || true; }
+
+docker compose ps --status running --services | grep -qx wordpress \
+	|| detener "El contenedor wordpress no está corriendo. Levántalo con docker compose up -d o corre bin/setup."
+
+echo "Core de WordPress"
+wp_si core is-installed || detener "WordPress no está instalado. Corre bin/setup."
+version_instalada=$(wp core version)
+version_imagen=$(docker compose exec -T wordpress php -r 'include "/usr/src/wordpress/wp-includes/version.php"; echo $wp_version;')
+if [ "$version_instalada" = "$version_imagen" ]; then
+	ok "Instalado, versión $version_instalada (la de compose.yaml)"
+else
+	falla "El core es $version_instalada, pero compose.yaml usa $version_imagen. Ver \"Actualizar WordPress\" en el README."
+fi
+if salida=$(wp core verify-checksums 2>&1); then
+	ok "Los archivos del core coinciden con los checksums oficiales"
+else
+	falla "wp core verify-checksums falló:"
+	# shellcheck disable=SC2001 # Indenta cada línea de una salida de varias líneas.
+	sed 's/^/      /' <<<"$salida"
+fi
+
+echo "Tema"
+if wp_si theme is-active "$TEMA"; then
+	ok "$TEMA es el tema activo"
+else
+	falla "El tema activo no es $TEMA. Corre bin/setup."
+fi
+if docker compose exec -T wordpress php -r "json_decode( file_get_contents( 'wp-content/themes/$TEMA/theme.json' ), flags: JSON_THROW_ON_ERROR );" >/dev/null 2>&1; then
+	ok "theme.json es JSON válido"
+else
+	falla "theme.json no es JSON válido"
+fi
+
+echo "Plugins"
+archivos_de_plugins="config/plugins.txt"
+if [ "$(wp eval 'echo wp_get_environment_type();')" = "local" ]; then
+	archivos_de_plugins="$archivos_de_plugins config/plugins-dev.txt"
+fi
+# shellcheck disable=SC2086 # Rutas sin espacios: se separan a propósito.
+declarados=$(grep -hvE '^[[:space:]]*(#|$)' $archivos_de_plugins | awk '{ print $1, $2 }' | sort || true)
+lista=$(wp plugin list --fields=name,status,version --format=csv)
+instalados=$(awk -F, 'NR > 1 && $2 != "must-use" && $2 != "dropin" { print $1, $3 }' <<<"$lista" | sort)
+if [ "$instalados" = "$declarados" ]; then
+	ok "Los plugins instalados son exactamente los declarados en config/plugins*.txt"
+else
+	falla "Los plugins instalados no son los declarados en config/plugins*.txt:"
+	comm -23 <(echo "$declarados") <(echo "$instalados") | grep . | sed 's/^/      declarado, pero no instalado con esa versión: /' || true
+	comm -13 <(echo "$declarados") <(echo "$instalados") | grep . | sed 's/^/      instalado, pero no declarado así: /' || true
+fi
+if grep -qx 'campodata-core,must-use,.*' <<<"$lista"; then
+	ok "El mu-plugin campodata-core está cargado"
+else
+	falla "El mu-plugin campodata-core no está cargado"
+fi
+
+echo "Sitio"
+codigo=$(pedir /)
+if [ "$codigo" = 200 ] && grep -q 'lang="es-CL"' "$html"; then
+	ok "La portada responde 200 y trae lang=\"es-CL\""
+elif [ "$codigo" = 200 ]; then
+	falla "La portada responde 200, pero no trae lang=\"es-CL\" (¿falta el idioma? corre bin/setup)"
+else
+	falla "La portada responde $codigo en vez de 200"
+fi
+# Recursos (scripts, estilos, imágenes, iframes) que no vienen del propio sitio.
+externos=$(grep -oE '<(script|img|iframe|source|video|audio|link)[^>]+(src|href)="[^"]+' "$html" \
+	| grep -oE '(src|href)="[^"]+' | sed -E 's/^(src|href)="//' \
+	| grep -vE "^($URL|/[^/]|#|data:)" | sort -u | paste -sd ' ' || true)
+externos="$externos$(grep -oE 'fonts\.googleapis\.com|fonts\.gstatic\.com|s\.w\.org' "$html" | sort -u | sed 's/^/ /' | paste -sd '' || true)"
+if [ -z "$externos" ]; then
+	ok "La portada no pide nada a dominios externos"
+else
+	falla "La portada pide recursos externos: $externos"
+fi
+if grep -qE 'wp-emoji|img\.emoji' "$html"; then
+	falla "La portada trae el script o los estilos de los emojis (ver seguridad.php del mu-plugin)"
+else
+	ok "La portada no trae el script ni los estilos de los emojis"
+fi
+# El texto "Página no encontrada" solo existe en templates/404.html del tema.
+codigo=$(pedir /pagina-que-no-existe/)
+if [ "$codigo" = 404 ] && grep -q 'Página no encontrada' "$html"; then
+	ok "Una URL inexistente responde 404 con la plantilla 404.html del tema"
+elif [ "$codigo" = 404 ]; then
+	falla "Una URL inexistente responde 404, pero sin la plantilla 404.html del tema"
+else
+	falla "Una URL inexistente responde $codigo en vez de 404 (¿enlaces permanentes? corre bin/setup)"
+fi
+
+echo "Editor del sitio"
+# shellcheck disable=SC2016 # Es código PHP: las variables son de PHP, no de bash.
+personalizadas=$(wp eval '
+foreach ( array( "wp_template", "wp_template_part" ) as $tipo ) {
+	foreach ( get_block_templates( array(), $tipo ) as $plantilla ) {
+		if ( "custom" === $plantilla->source ) {
+			echo $plantilla->slug, " ";
+		}
+	}
+}')
+if [ -z "$personalizadas" ]; then
+	ok "No hay plantillas ni partes modificadas en la base: todo el diseño está en el repo"
+else
+	aviso "Plantillas o partes modificadas en el Editor del sitio, que no están en el repo: ${personalizadas% }."
+	aviso "Pásalas al tema con Create Block Theme y borra la personalización (ver README)."
+fi
+
+echo
+if [ "$fallas" -eq 0 ]; then
+	echo "Todo en orden."
+elif [ "$fallas" -eq 1 ]; then
+	echo "Falló 1 verificación."
+	exit 1
+else
+	echo "Fallaron $fallas verificaciones."
+	exit 1
+fi

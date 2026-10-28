@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# Borra el entorno local completo (base de datos, core, plugins y archivos subidos) y lo
+# recrea con bin/setup. No toca nada del repositorio. Uso: bin/reset [--yes]
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+case "${1:-}" in
+	--yes) ;;
+	"")
+		echo "Esto borra el sitio local completo: base de datos, core de WordPress, plugins y archivos subidos."
+		echo "El código del repositorio no se toca."
+		respuesta=""
+		read -r -p "Escribe 'si' para continuar: " respuesta || true
+		if [ "$respuesta" != "si" ]; then
+			echo "Cancelado: no se borró nada."
+			exit 1
+		fi
+		;;
+	*)
+		echo "ERROR: opción desconocida \"$1\". Uso: bin/reset [--yes]" >&2
+		exit 2
+		;;
+esac
+
+docker compose --profile cli down --volumes --remove-orphans
+exec bin/setup
