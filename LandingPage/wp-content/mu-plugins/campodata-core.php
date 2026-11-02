@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: CampoData Core
- * Description: Funcionalidad propia del sitio que no depende del tema: seguridad básica y protecciones del entorno local.
+ * Description: Funcionalidad propia del sitio que no depende del tema: seguridad básica, datos de contacto y protecciones del entorno local.
  * Version: 0.1.0
  * Requires at least: 7.0
  * Requires PHP: 8.3
@@ -17,6 +17,7 @@ namespace CampoData\Core;
 defined( 'ABSPATH' ) || exit;
 
 require_once __DIR__ . '/campodata-core/seguridad.php';
+require_once __DIR__ . '/campodata-core/contacto.php';
 
 if ( 'local' === wp_get_environment_type() ) {
 	require_once __DIR__ . '/campodata-core/entorno-local.php';

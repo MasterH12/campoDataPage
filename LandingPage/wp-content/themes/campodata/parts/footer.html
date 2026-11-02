@@ -1,12 +1,52 @@
-<!-- wp:group {"backgroundColor":"contraste","textColor":"base","style":{"spacing":{"padding":{"top":"var:preset|spacing|50","bottom":"var:preset|spacing|50"}}},"layout":{"type":"constrained"}} -->
-<div class="wp-block-group has-base-color has-contraste-background-color has-text-color has-background" style="padding-top:var(--wp--preset--spacing--50);padding-bottom:var(--wp--preset--spacing--50)">
-	<!-- wp:group {"align":"wide","style":{"spacing":{"blockGap":"var:preset|spacing|20"}},"fontSize":"small","layout":{"type":"flex","flexWrap":"wrap"}} -->
-	<div class="wp-block-group alignwide has-small-font-size">
+<!-- wp:group {"className":"is-style-seccion-noche cd-pie","style":{"spacing":{"padding":{"top":"var:preset|spacing|60","bottom":"var:preset|spacing|40"},"blockGap":"var:preset|spacing|50"}},"layout":{"type":"constrained"}} -->
+<div class="wp-block-group is-style-seccion-noche cd-pie" style="padding-top:var(--wp--preset--spacing--60);padding-bottom:var(--wp--preset--spacing--40)">
+	<!-- wp:group {"align":"wide","style":{"spacing":{"blockGap":"var:preset|spacing|50"}},"layout":{"type":"flex","flexWrap":"wrap","justifyContent":"space-between","verticalAlignment":"top"}} -->
+	<div class="wp-block-group alignwide">
+		<!-- wp:group {"className":"cd-pie-marca","style":{"spacing":{"blockGap":"var:preset|spacing|30"}},"layout":{"type":"flex","orientation":"vertical"}} -->
+		<div class="wp-block-group cd-pie-marca">
+			<!-- wp:paragraph {"className":"cd-marca"} -->
+			<p class="cd-marca"><a href="/">Campo<strong>Data</strong></a></p>
+			<!-- /wp:paragraph -->
+
+			<!-- wp:paragraph {"fontSize":"small"} -->
+			<p class="has-small-font-size">Gestión de datos para predios lecheros y ganaderos · Los Ríos y Los Lagos, Chile</p>
+			<!-- /wp:paragraph -->
+		</div>
+		<!-- /wp:group -->
+
+		<!-- wp:navigation {"overlayMenu":"never","ariaLabel":"Menú del pie","className":"cd-menu-pie","layout":{"type":"flex","orientation":"vertical"}} -->
+			<!-- wp:navigation-link {"label":"Para quién","url":"/#para-quien","kind":"custom","isTopLevelLink":true} /-->
+
+			<!-- wp:navigation-link {"label":"Cómo funciona","url":"/#como","kind":"custom","isTopLevelLink":true} /-->
+
+			<!-- wp:navigation-link {"label":"Reportes","url":"/#reportes","kind":"custom","isTopLevelLink":true} /-->
+
+			<!-- wp:navigation-link {"label":"Solicitar demo","url":"/#demo","kind":"custom","isTopLevelLink":true} /-->
+		<!-- /wp:navigation -->
+
+		<!-- wp:social-links {"iconColor":"base","iconColorValue":"#FFFFFF","size":"has-normal-icon-size","className":"is-style-logos-only"} -->
+		<ul class="wp-block-social-links has-normal-icon-size has-icon-color is-style-logos-only">
+			<!-- wp:social-link {"url":"","service":"whatsapp","metadata":{"bindings":{"url":{"source":"campodata/contacto","args":{"campo":"whatsapp_url"}}}}} /-->
+
+			<!-- wp:social-link {"url":"","service":"mail","metadata":{"bindings":{"url":{"source":"campodata/contacto","args":{"campo":"correo_url"}}}}} /-->
+
+			<!-- wp:social-link {"url":"","service":"linkedin","metadata":{"bindings":{"url":{"source":"campodata/contacto","args":{"campo":"linkedin_url"}}}}} /-->
+
+			<!-- wp:social-link {"url":"","service":"instagram","metadata":{"bindings":{"url":{"source":"campodata/contacto","args":{"campo":"instagram_url"}}}}} /-->
+		</ul>
+		<!-- /wp:social-links -->
+	</div>
+	<!-- /wp:group -->
+
+	<!-- wp:group {"align":"wide","className":"cd-pie-final","style":{"spacing":{"blockGap":"var:preset|spacing|20"}},"fontSize":"x-small","layout":{"type":"flex","flexWrap":"wrap"}} -->
+	<div class="wp-block-group alignwide cd-pie-final has-x-small-font-size">
 		<!-- wp:paragraph {"metadata":{"bindings":{"content":{"source":"campodata/anio"}}}} -->
 		<p>© 2026</p>
 		<!-- /wp:paragraph -->
 
-		<!-- wp:site-title {"level":0,"isLink":false} /-->
+		<!-- wp:paragraph -->
+		<p>CampoData SpA</p>
+		<!-- /wp:paragraph -->
 	</div>
 	<!-- /wp:group -->
 </div>

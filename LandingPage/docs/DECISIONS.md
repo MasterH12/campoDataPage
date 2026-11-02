@@ -117,6 +117,75 @@ Este proyecto sigue `Clientes Web/FRAMEWORK-WORDPRESS.md`. Las decisiones D01 a 
 - **Decisión:** `seguridad.php` quita `print_emoji_styles` de `wp_print_styles`, que es la vía que el propio core documenta ("Back-compat for plugins that disable functionality by unhooking this action"). Con eso, `wp_enqueue_emoji_styles()` no hace nada. Se mantienen la eliminación del script de detección y el filtro `emoji_svg_url`. Después del cambio, la portada no menciona los emojis y `debug.log` queda vacío tras visitar la portada y la página 404. `bin/check` ahora falla si la portada trae el script o los estilos de los emojis. La spec se corrigió antes de su primer commit, porque sirve de plantilla para los clientes siguientes.
 - **Alternativas descartadas:** quitar las dos cosas: con `print_emoji_styles` fuera, quitar `wp_enqueue_emoji_styles` ya no hace falta. **Siete Colores tiene el mismo problema** y se puede corregir allá con el mismo cambio.
 
+### D14 · Identidad desde el logo nuevo: noche y blanco, con los colores del logo como acentos
+
+*2026-11-02 · spec 02*
+
+- **Contexto:** el usuario quiere que la landing transmita tecnología nueva a dueños de lecherías, ganaderos y asesores, y entregó un logo nuevo (JPG). El sitio anterior usaba otra paleta (verdes, azul y un naranja que el logo no tiene) y Fraunces, una serif editorial.
+- **Decisión:**
+  - **Paleta medida del JPG:** `primario` es el marino de la vaca (`#034A87`) y `acento` el amarillo de la espiga (`#FCCB04`); se suman `noche`, `bruma`, `borde` y cuatro colores con el nombre de su parte del logo (`cielo`, `brote`, `pradera`, `surco`). El contraste de cada combinación de texto se midió (README, "Identidad").
+  - **Tono:** el banner, Reportes, la demo, el encabezado y el pie van sobre `noche`; las secciones de lectura, en blanco y en `suave`.
+  - **Tipografías:** Sora (títulos) y DM Sans (texto, la del sitio anterior), de Fontsource 5.3.0 (consultado el 2026-11-02), con su licencia OFL, servidas desde el tema y precargadas.
+  - **Motivo visual:** los píxeles del logo, que salen del campo hacia el cielo, son el campo de píxeles animado del banner y de la demo.
+- **Alternativas descartadas:** conservar la paleta y Fraunces del sitio anterior (no coinciden con el logo nuevo ni se leen tecnológicas); Space Grotesk (más liviana, pero sus formas no se parecen a la palabra del logo).
+
+### D15 · La portada es una página de secciones, compuesta por `landing.php`
+
+*2026-11-02 · spec 02*
+
+- **Decisión:** "Inicio" solo contiene `<!-- wp:pattern {"slug":"campodata/landing"} /-->`. `landing.php` (`Inserter: no`) ordena siete patrones de sección: banner, para quién, cómo funciona, reportes, beneficios, por qué y demo. `bin/setup` migra "Inicio" desde el contenido provisional de la spec 01 y no toca una página con contenido propio. Hay un solo `h1`, y `bin/check` verifica las anclas en orden.
+- **Alternativas descartadas:** escribir las secciones directo en la página (el diseño quedaría en la base).
+
+### D16 · Sección nueva "Para quién"
+
+*2026-11-02 · spec 02*
+
+- **Contexto:** el sitio anterior hablaba solo a productores lecheros; el usuario quiere sumar a ganaderos y asesores.
+- **Decisión:** una tarjeta por perfil, justo después del banner. Lo que el sitio anterior ya decía se reutiliza; lo propio de la ganadería de carne y de los asesores queda como texto guía hasta que el cliente lo confirme. Cada tarjeta lleva al formulario con su perfil elegido.
+- **Alternativas descartadas:** un banner por perfil (triplica el contenido).
+
+### D17 · Reportes reales en pestañas del core, y banner sin foto
+
+*2026-11-02 · spec 02*
+
+- **Decisión:** las capturas de Power BI del sitio anterior, pasadas a WebP, en el bloque `tabs` del core dentro de un marco de aplicación (estilo `ventana`). El banner no lleva foto: un panel ilustrado en SVG (sin números ni ejes con valores) muestra un gráfico y la recomendación "Baja 2 kg de soya al Lote C hoy.", que es del sitio anterior. No se usó la foto de banco del sitio anterior.
+- **Alternativas descartadas:** un panel de Power BI embebido (contenido de terceros); ilustraciones genéricas en vez de las capturas reales.
+
+*La web ya no nombra la herramienta de los reportes, y la captura "Producción Leche" se limpió de nombres de terceros: ver D21.*
+
+### D18 · Movimiento con CSS, SVG animados y un módulo JS propio
+
+*2026-11-02 · spec 02*
+
+- **Decisión:** la receta de campodata.cl (framework §6.4) más 15 efectos con código (M1 a M15, README "Movimiento"). Las animaciones decorativas que se repiten viven dentro de los SVG (`pixeles.svg`, `panel.svg`), con su propio `@media (prefers-reduced-motion)`. Un script de una línea en el `<head>` agrega `cd-con-js` y `cd-movimiento`, y quita la segunda si el módulo no carga en 3 segundos. Lo que se repite se pausa fuera de la vista y con la pestaña oculta.
+- **Alternativas descartadas:** AOS, GSAP o Lottie (framework §1.9); un `<canvas>` con JS para los píxeles (más código y nada sin JS); decenas de bloques vacíos animados (en el editor parecen grupos por completar).
+
+### D19 · Encabezado oscuro y fijo, con cristal y barra de progreso
+
+*2026-11-02 · spec 02*
+
+- **Decisión:** el encabezado es `noche`, del mismo color que el banner, y queda fijo. Pasados los 20px de scroll gana un cristal translúcido con desenfoque, y en su borde inferior una barra con el degradado de la marca muestra cuánto se leyó. El enlace de la sección visible queda marcado.
+- **Alternativas descartadas:** un encabezado blanco sobre el banner oscuro; uno transparente encima del banner, que exige un margen negativo atado al alto del encabezado.
+
+### D20 · Demo por WhatsApp y correo, con datos en una sola fuente
+
+*2026-11-02 · spec 02*
+
+- **Decisión:** los datos viven en la opción `campodata_contacto` (Ajustes → Datos de contacto, mu-plugin `contacto.php`) y se muestran con la fuente de *block bindings* `campodata/contacto`. `bin/setup` la crea una sola vez desde `config/contacto-inicial.json`, con el WhatsApp del botón del sitio anterior (`56926304489`) y `contacto@campodata.cl`. **No se usó** el `56912345678` del pie anterior, que es un número de ejemplo; `bin/check` falla si aparece. El formulario arma el mensaje de WhatsApp en el navegador, sin enviar nada a un servidor.
+- **Alternativas descartadas:** un formulario con envío de correo (SMTP y antispam, framework §8); `fandradeg@campodata.cl`, el correo del botón anterior (queda como pregunta P8 de la spec: se cambia en Ajustes).
+
+### D21 · La web no nombra sistemas ni empresas de terceros
+
+*2026-11-02 · pedido del usuario después de la spec 02 (spec 02 v2)*
+
+- **Contexto:** la landing reutilizaba textos del sitio anterior que nombraban DairyPlan, Excel y Power BI, y la captura "Producción Leche" mostraba "WATTS" en dos títulos y "DP" en una columna y en una leyenda. El usuario pidió sacar cualquier alusión a sistemas de terceros, porque "nos podría meter en problemas", y aclaró que CampoData se adapta a las tecnologías y la maquinaria que tiene cada predio.
+- **Decisión:**
+  - **Textos:** donde se nombraba un sistema, el mensaje pasa a ser la adaptación: el párrafo del banner ("Nos adaptamos a la tecnología y la maquinaria que ya tiene tu predio…"), la tarjeta del panel ("Se adapta a la tecnología de tu predio"), el tercer punto de "Dueños de lecherías", el paso 01 de Cómo funciona (ahora "Nos adaptamos a tu predio"), el punto "Se adapta a lo que ya tienes" de Por qué CampoData y la fila "Se adapta a tu tecnología y maquinaria" de la comparación. Reportes deja de decir "de Power BI" en el párrafo, en el título de la ventana y en los `alt`.
+  - **Imagen:** en "Producción Leche" se borró "WATTS" de "Leche WATTS Mes" y "Leche WATTS Diario" (la palabra siguiente se corrió para no dejar un hueco), "DP" de la columna "Total DP" y la leyenda "Prod. DP" completa. No se escribió texto nuevo en la imagen. Las otras tres capturas no nombran a terceros.
+  - **Contacto:** WhatsApp, LinkedIn e Instagram se mantienen: son canales para escribirle a CampoData, no sistemas con los que trabaja.
+  - **Verificación:** `bin/check` falla si la portada nombra DairyPlan, Power BI, Excel o WATTS (la lista está en el script; "excelente" no cuenta).
+- **Alternativas descartadas:** decir "compatible con los principales sistemas del mercado" (sigue aludiendo a terceros y promete algo que no se puede verificar); quitar la captura "Producción Leche" (es la más clara de las cuatro); difuminar las palabras en vez de borrarlas (se nota la marca de la edición).
+
 ---
 
 ## Cambios respecto de la spec 01
@@ -134,3 +203,110 @@ Sin cambios: la implementación sigue la spec 01 (con la corrección de D13 ya i
 | R3 | El puerto 8081 está ocupado | No pasó |
 | R4 | Sin internet no se instala `es_CL` | No pasó con el idioma. Sí hubo un corte con `api.wordpress.org` en la primera instalación: `bin/setup` se detuvo en el paso de plugins ("WordPress no pudo establecer una conexión segura a WordPress.org"). Un minuto después, el contenedor respondía 200, y al volver a correr `bin/setup` retomó y terminó. Quedó en "Problemas conocidos" del README |
 | R5 | No se puede sacar `screenshot.png` | No pasó: se sacó de la portada con Chrome sin cabeza, a 1200 × 900 |
+
+---
+
+## Cambios respecto de la spec 02
+
+### C01 · Se empezó con la spec sin commit
+
+- **Qué decía la spec:** §0.2 y la etapa 0: el árbol de trabajo debe estar limpio al empezar.
+- **Qué se hizo:** se ejecutó con un solo archivo sin commit, la propia spec (`specs/02-spec-estructura-landing.md`).
+- **Por qué:** el usuario pidió implementarla en la misma sesión en que se escribió. La spec se puede commitear sola, antes que el resto.
+
+### C02 · Reportes tiene cuatro pestañas, no cinco
+
+- **Qué decía la spec:** §6.4 y P6: sumar "Leche por Lote" como segunda pestaña, porque en el sitio anterior tenía panel pero no botón.
+- **Qué se hizo:** cuatro pestañas, como el sitio anterior: Producción Leche, Distribución Animales, Resumen Diario e Inventario Animal.
+- **Por qué:** la imagen del panel "Leche por Lote" del sitio anterior es **idéntica byte a byte** a la de "Producción Leche" (mismo MD5). Su leyenda describiría un reporte que no se ve. Si existe la captura real, se agrega como quinta pestaña.
+
+### C03 · Beneficios en una grilla de 4 columnas
+
+- **Qué decía la spec:** §6.5: 3 columnas y 2 filas, con la primera y la última tarjeta de 2 columnas.
+- **Qué se hizo:** 4 columnas y 2 filas (2 + 1 + 1 y 1 + 1 + 2). En tablet, 2 columnas con las mismas dos tarjetas anchas; en móvil, una.
+- **Por qué:** seis tarjetas con dos dobles ocupan 8 celdas, y 3 × 2 son 6.
+
+### C04 · Íconos con su color escrito
+
+- **Qué decía la spec:** §11: íconos pintados con máscara y `currentColor`.
+- **Qué se hizo:** 13 SVG de trazo propios en `assets/images/iconos/`, en `primario` (`#034A87`) escrito en el archivo, dentro de bloques `image`. La ficha que los rodea sí toma el color del perfil o del beneficio desde los tokens.
+- **Por qué:** es la lección C18 de Siete Colores: una máscara necesita un bloque vacío, que en el editor parece un grupo por completar. Con imagen, cada ícono se ve y se cambia en el editor.
+
+### C05 · Los números de los pasos son pequeños
+
+- **Qué decía la spec:** §6.3: el número grande "01" a "04" en `borde`.
+- **Qué se hizo:** el número va en `small`, en `surco`, con interletra, entre el nodo y el título.
+- **Por qué:** arriba a la derecha de cada paso quedaba justo sobre la línea que une los nodos, que lo cortaba.
+
+### C06 · El menú pasa al botón móvil bajo 861px
+
+- **Qué decía la spec:** §7 y R9: el menú del core (botón bajo 600px); si se desborda, ocultar el botón "Solicitar demo" bajo 1100px.
+- **Qué se hizo:** el botón "Solicitar demo" del encabezado se oculta hasta 1023px, y entre 600 y 860px el CSS muestra el botón del menú móvil, que el core solo muestra bajo 600px. El menú móvil trae un enlace "Solicitar demo" en `acento` que en escritorio no se ve (clase `cd-solo-menu-movil`).
+- **Por qué:** medido de a 1px, el encabezado se desbordaba entre 320 y 374px (el botón seguía visible: la regla del core para `.wp-block-buttons` ganaba en especificidad), entre 600 y 711px y entre 782 y 817px. Después del cambio, no hay desborde ni scroll horizontal en ningún ancho entre 320 y 1500px.
+
+### C07 · El cristal del encabezado va en un pseudoelemento
+
+- **Qué decía la spec:** §7: `backdrop-filter` en el encabezado al bajar.
+- **Qué se hizo:** el fondo translúcido y el desenfoque van en `header::before`.
+- **Por qué:** un `backdrop-filter` en el encabezado lo vuelve el contenedor de sus elementos `position: fixed`. Al abrir el menú móvil después de bajar, el menú quedaba encerrado en los 72px del encabezado.
+
+### C08 · Ajustes del banner
+
+- **Qué decía la spec:** §6.1: `minHeight` en el bloque; el campo de píxeles en la mitad inferior izquierda; solo la tarjeta de recomendación sobre el panel.
+- **Qué se hizo:**
+  - la altura mínima (`max(560px, 100vh − 72px)`) va en CSS y no en el bloque, para no estorbar en el editor; bajo 782px no hay altura mínima;
+  - los píxeles van a la derecha, detrás del panel (el SVG espejado), y en móvil solo en el 38% inferior;
+  - sobre el panel hay una segunda tarjeta, tomada de "Compatible con lo que ya usas" del sitio anterior. Desde D21 dice "Se adapta a la tecnología de tu predio";
+  - el enlace de la marca no lleva `aria-label`: su texto, "CampoData", ya lo nombra.
+- **Por qué:** a la izquierda, los píxeles quedaban detrás del título y del párrafo y estorbaban la lectura; en móvil, detrás del párrafo. La segunda tarjeta equilibra el panel y repite un mensaje real.
+
+### C09 · El degradado del cierre se anima en un pseudoelemento
+
+- **Qué decía la spec:** M13: desplazar el degradado `cierre` de la sección.
+- **Qué se hizo:** la sección conserva su degradado (el editor lo muestra), y la animación va en `.cd-demo::after`.
+- **Por qué:** la clase del degradado del core usa `background: … !important`, y una animación no puede cambiar una propiedad con `!important`.
+
+### C10 · Pausa de lo que se repite
+
+- **Qué decía la spec:** §10.2: pausar con `animation-play-state`.
+- **Qué se hizo:** las animaciones del CSS se pausan así. Las que viven dentro de los SVG no se pueden pausar desde la página: fuera de la vista, el campo de píxeles y el panel se ocultan con `visibility` (nadie los ve en ese momento).
+- **Por qué:** un SVG cargado como imagen o como fondo es un documento aparte.
+
+### C11 · Las capturas de Reportes no se cargan en diferido
+
+- **Qué decía la spec:** §11: `loading="lazy"` en las imágenes de las pestañas ocultas.
+- **Qué se hizo:** se cargan las cuatro.
+- **Por qué:** el bloque `image` no guarda ese atributo, y el core no lo agrega a imágenes sin ancho ni alto. Las cuatro suman 289 KB, y la portada completa pesa 469 KB en 32 pedidos, menos de la mitad del máximo de 1 MB.
+
+### C12 · Peso del CSS
+
+- **Qué decía la spec:** §10.2: `sitio.css` hasta 24 KB y `movimiento.js` hasta 12 KB, sin minificar.
+- **Qué se hizo:** `sitio.css` pesa 36 KB (8 KB comprimido) y `movimiento.js` 9,6 KB (3,6 KB comprimido).
+- **Por qué:** los 15 efectos, la tabla, el formulario sobre fondo oscuro, el menú móvil y los ajustes de C05 a C10. Como en Siete Colores (C15), el peso comprimido es lo que cuenta en la portada.
+
+### C13 · Detalles del formulario y de la tabla
+
+- **Qué decía la spec:** nada de esto.
+- **Qué se hizo:**
+  - los campos del formulario llevan ejemplos ("Nombre y apellido", "Fundo, lechería o empresa"), y sin JS se oculta toda su tarjeta, no solo el formulario;
+  - en pantallas de hasta 600px, los rótulos de la tabla van sin mayúsculas ni interletra, con otros anchos de columna y guiones automáticos en la primera columna.
+- **Por qué:** sin JS quedaba una tarjeta de cristal vacía. A 390px, la tabla partía palabras ("CAM POD ATA", "Recomendacion es").
+
+---
+
+## Riesgos de ejecución de la spec 02 (§14)
+
+| # | Riesgo | Qué pasó |
+| --- | --- | --- |
+| R1 | Las pestañas no dejan poner la barra ni el reflejo | No pasó: la barra es un `group` hermano de las pestañas y el reflejo un `::after` de la ventana |
+| R2 | El SVG animado no anima o no respeta el movimiento reducido | No pasó en Chrome 156: con movimiento reducido la línea del panel aparece completa y quieta. No se probó en Safari ni en Firefox |
+| R3 | `background-clip: text` deja el título invisible | No pasó. Hay respaldo en `acento` con `@supports` y con `forced-colors` |
+| R4 | La grilla bento no admite tarjetas anchas | No pasó con la grilla del core, pero la geometría de la spec no cerraba: C03 |
+| R5 | Halo en el emblema recortado | No pasó: recorte circular con suavizado, sobre una ficha blanca con anillo (256 × 256, 15 KB) |
+| R6 | Capturas borrosas en alta densidad | Pendiente de revisar en una pantalla real: las capturas de origen miden 1100px y se muestran a 1100px como máximo. Conviene pedir exportaciones de 2200px |
+| R7 | `social-link` no toma la URL enlazada | No pasó: WhatsApp y correo toman su URL; LinkedIn e Instagram, vacíos, no aparecen |
+| R8 | El formulario pierde atributos al guardar la página | No se probó guardar "Inicio" desde el editor (cambiaría su contenido). El editor valida los 576 bloques sin errores |
+| R9 | El encabezado se desborda | **Pasó** entre 320–374, 600–711 y 782–817px. Se aplicó una variante del plan B: C06 |
+| R10 | La inclinación del panel deja el texto borroso | No se observó en Chrome sin cabeza. Se verificó que el ángulo no pasa de 6° |
+| R11 | El foco de luz choca con los fondos | No pasó: `::before` con `z-index: -1` en una tarjeta con `isolation: isolate` |
+| R12 | Las animaciones que se repiten gastan batería | No se midió en un teléfono. Se pausan fuera de la vista (C10) |

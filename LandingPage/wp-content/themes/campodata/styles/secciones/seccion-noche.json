@@ -1,0 +1,42 @@
+{
+	"$schema": "https://schemas.wp.org/wp/7.1/theme.json",
+	"version": 3,
+	"title": "Sección noche",
+	"slug": "seccion-noche",
+	"blockTypes": [ "core/group" ],
+	"styles": {
+		"color": {
+			"background": "var:preset|color|noche",
+			"text": "var:preset|color|bruma"
+		},
+		"elements": {
+			"heading": {
+				"color": {
+					"text": "var:preset|color|base"
+				}
+			},
+			"link": {
+				"color": {
+					"text": "var:preset|color|acento"
+				},
+				":hover": {
+					"color": {
+						"text": "var:preset|color|base"
+					}
+				}
+			},
+			"button": {
+				"color": {
+					"background": "var:preset|color|acento",
+					"text": "var:preset|color|noche"
+				},
+				":hover": {
+					"color": {
+						"background": "var:preset|color|acento",
+						"text": "var:preset|color|noche"
+					}
+				}
+			}
+		}
+	}
+}

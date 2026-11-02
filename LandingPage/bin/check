@@ -4,6 +4,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 TEMA="campodata"
+ANCLAS="inicio para-quien como reportes beneficios porque demo"
 
 fallas=0
 ok() { printf '  ✔ %s\n' "$*"; }
@@ -63,6 +64,39 @@ if docker compose exec -T wordpress php -r "json_decode( file_get_contents( 'wp-
 else
 	falla "theme.json no es JSON válido"
 fi
+# Archivos del tema y su peso máximo en KB (spec 02, §11).
+recursos=$(cat <<'RECURSOS'
+assets/fonts/sora-latin-wght-normal.woff2 40
+assets/fonts/dm-sans-latin-wght-normal.woff2 40
+assets/images/marca/emblema.webp 20
+assets/images/ilustraciones/pixeles.svg 8
+assets/images/ilustraciones/panel.svg 16
+assets/images/reportes/produccion-leche.webp 120
+assets/images/reportes/distribucion-animales.webp 120
+assets/images/reportes/resumen-diario.webp 120
+assets/images/reportes/inventario-animal.webp 120
+RECURSOS
+)
+faltantes=""
+pesados=""
+while read -r archivo maximo; do
+	ruta="wp-content/themes/$TEMA/$archivo"
+	if [ ! -f "$ruta" ]; then
+		faltantes="$faltantes $archivo"
+	elif [ $(($(wc -c <"$ruta") / 1024)) -gt "$maximo" ]; then
+		pesados="$pesados $archivo ($(($(wc -c <"$ruta") / 1024)) KB, máximo $maximo)"
+	fi
+done <<<"$recursos"
+if [ -z "$faltantes" ]; then
+	ok "Las tipografías, el emblema, las ilustraciones y las capturas están en el tema"
+else
+	falla "Faltan en el tema:$faltantes"
+fi
+if [ -z "$pesados" ]; then
+	ok "Ningún archivo del tema supera su peso máximo"
+else
+	falla "Archivos más pesados que su máximo:$pesados"
+fi
 
 echo "Plugins"
 archivos_de_plugins="config/plugins.txt"
@@ -118,6 +152,69 @@ elif [ "$codigo" = 404 ]; then
 	falla "Una URL inexistente responde 404, pero sin la plantilla 404.html del tema"
 else
 	falla "Una URL inexistente responde $codigo en vez de 404 (¿enlaces permanentes? corre bin/setup)"
+fi
+
+echo "Landing"
+# shellcheck disable=SC2016 # Es código PHP: las variables son de PHP, no de bash.
+faltantes=$(wp eval '
+foreach ( array( "landing", "banner", "para-quien", "como-funciona", "reportes", "beneficios", "por-que", "demo" ) as $patron ) {
+	if ( ! WP_Block_Patterns_Registry::get_instance()->is_registered( "campodata/$patron" ) ) {
+		echo $patron, " ";
+	}
+}')
+if [ -z "$faltantes" ]; then
+	ok "Están registrados la landing y sus siete secciones"
+else
+	falla "Faltan patrones registrados: ${faltantes% }"
+fi
+pedir / >/dev/null
+titulos=$(grep -o '<h1' "$html" | wc -l)
+if [ "$titulos" -eq 1 ]; then
+	ok "La portada tiene un solo h1"
+else
+	falla "La portada tiene $titulos h1 (tiene que haber exactamente uno)"
+fi
+anclas=$(grep -oE "id=\"(${ANCLAS// /|})\"" "$html" | sed -E 's/id="(.*)"/\1/' | paste -sd ' ' || true)
+if [ "$anclas" = "$ANCLAS" ]; then
+	ok "Las secciones están completas y en orden: $ANCLAS"
+else
+	falla "Las secciones no son las esperadas. Se esperaba \"$ANCLAS\" y la portada tiene \"$anclas\""
+fi
+rotos=""
+while read -r ancla; do
+	grep -q "id=\"$ancla\"" "$html" || rotos="$rotos /#$ancla"
+done < <(grep -oE 'href="/#[a-z0-9-]+"' "$html" | sed -E 's|href="/#(.*)"|\1|' | sort -u)
+if [ -z "$rotos" ]; then
+	ok "Cada enlace del menú y del pie lleva a una sección de la portada"
+else
+	falla "Enlaces que no llevan a ninguna sección:$rotos"
+fi
+if grep -q 'wa.me/56912345678' "$html"; then
+	falla "La portada usa el número de WhatsApp de ejemplo del sitio anterior (56912345678)"
+else
+	ok "La portada no usa el número de WhatsApp de ejemplo del sitio anterior"
+fi
+# La web no nombra sistemas ni empresas de terceros (DECISIONS D21). Para sumar uno, agrégalo a la lista.
+terceros=$(grep -oiE '\b(dairy ?plan|power ?bi|excel|watts)\b' "$html" | sort -u | paste -sd ',' || true)
+if [ -z "$terceros" ]; then
+	ok "La portada no nombra sistemas de terceros"
+else
+	falla "La portada nombra sistemas de terceros: $terceros (ver D21 en docs/DECISIONS.md)"
+fi
+guias=$(LC_ALL=C.UTF-8 grep -oE '\[[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+[ :]' "$html" | wc -l)
+if [ "$guias" -gt 0 ]; then
+	aviso "Quedan $guias textos guía ([…]) en la portada: es contenido pendiente."
+fi
+# shellcheck disable=SC2016 # Es código PHP: las variables son de PHP, no de bash.
+redes_vacias=$(wp eval '
+$datos = get_option( "campodata_contacto" );
+foreach ( array( "linkedin" => "LinkedIn", "instagram" => "Instagram" ) as $clave => $nombre ) {
+	if ( empty( $datos[ $clave ] ) ) {
+		echo $nombre, " ";
+	}
+}')
+if [ -n "$redes_vacias" ]; then
+	aviso "Faltan en Ajustes → Datos de contacto: ${redes_vacias% }. Sus íconos no aparecen en el pie hasta que se completen."
 fi
 
 echo "Editor del sitio"

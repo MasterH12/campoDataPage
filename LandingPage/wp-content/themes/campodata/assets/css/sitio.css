@@ -1,0 +1,1569 @@
+/*
+ * CampoData: estilos propios del tema.
+ * Todos los valores salen de theme.json (variables --wp--preset--* y --wp--custom--*).
+ * El movimiento solo se activa con la clase cd-movimiento en <html> (ver inc/recursos.php).
+ */
+
+:root {
+	--cd-linea-clara: color-mix(in srgb, var(--wp--preset--color--base) 10%, transparent);
+	--cd-velo-claro: color-mix(in srgb, var(--wp--preset--color--base) 6%, transparent);
+	--cd-sombra-honda: 0 30px 80px color-mix(in srgb, var(--wp--preset--color--noche) 55%, transparent);
+	--cd-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7'/%3E%3C/svg%3E");
+}
+
+::selection {
+	background: var(--wp--preset--color--acento);
+	color: var(--wp--preset--color--noche);
+}
+
+:focus-visible {
+	outline: 2px solid var(--wp--preset--color--primario);
+	outline-offset: 3px;
+}
+
+:where(.is-style-seccion-noche) :focus-visible {
+	outline-color: var(--wp--preset--color--acento);
+}
+
+html {
+	scroll-padding-top: calc(var(--cd-alto-encabezado, var(--wp--custom--encabezado--alto)) + var(--wp-admin--admin-bar--height, 0px));
+}
+
+/* La introducción queda alineada con el ancho amplio, pero con un largo de línea cómodo. */
+.is-layout-constrained > .cd-intro {
+	max-width: 62ch;
+	margin-left: max(0px, calc((100% - var(--wp--style--global--wide-size)) / 2)) !important;
+}
+
+/* Colores por perfil y por beneficio: el ícono, el borde al pasar el mouse y el foco de luz. */
+.cd-perfil-lecheria,
+.cd-color-cielo { --cd-color: var(--wp--preset--color--cielo); }
+.cd-perfil-ganadero,
+.cd-color-brote { --cd-color: var(--wp--preset--color--brote); }
+.cd-perfil-asesor,
+.cd-color-acento { --cd-color: var(--wp--preset--color--acento); }
+.cd-color-primario { --cd-color: var(--wp--preset--color--primario); }
+.cd-color-pradera { --cd-color: var(--wp--preset--color--pradera); }
+.cd-color-surco { --cd-color: var(--wp--preset--color--surco); }
+
+/* Encabezado fijo, oscuro como el banner; con cristal y barra de progreso al bajar. */
+.wp-site-blocks > header.wp-block-template-part {
+	position: sticky;
+	top: var(--wp-admin--admin-bar--height, 0px);
+	z-index: 50;
+	background-color: var(--wp--preset--color--noche);
+	transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+@media (max-width: 600px) {
+	.admin-bar .wp-site-blocks > header.wp-block-template-part {
+		top: 0;
+	}
+}
+
+.wp-site-blocks > header.wp-block-template-part::after {
+	content: "";
+	position: absolute;
+	inset: auto 0 0;
+	height: 2px;
+	background: var(--wp--preset--gradient--marca);
+	transform: scaleX(var(--cd-progreso, 0));
+	transform-origin: left;
+}
+
+/* El cristal va en un pseudoelemento: un backdrop-filter en el encabezado encerraría dentro de él
+   al menú móvil, que es position: fixed. */
+.wp-site-blocks > header.wp-block-template-part::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	opacity: 0;
+	background-color: color-mix(in srgb, var(--wp--preset--color--noche) 82%, transparent);
+	backdrop-filter: blur(12px);
+	transition: opacity 0.3s;
+	pointer-events: none;
+}
+
+.cd-con-scroll .wp-site-blocks > header.wp-block-template-part {
+	background-color: transparent;
+	box-shadow: 0 1px 0 var(--cd-linea-clara), 0 10px 30px color-mix(in srgb, var(--wp--preset--color--noche) 40%, transparent);
+}
+
+.cd-con-scroll .wp-site-blocks > header.wp-block-template-part::before {
+	opacity: 1;
+}
+
+.cd-encabezado.is-style-seccion-noche {
+	background: transparent;
+}
+
+.cd-encabezado > .alignwide {
+	min-height: var(--wp--custom--encabezado--alto);
+}
+
+/* La marca: el emblema en su ficha y la palabra "CampoData" en dos colores. */
+.cd-marca {
+	margin: 0;
+	font-family: var(--wp--preset--font-family--titulos);
+	font-size: var(--wp--preset--font-size--large);
+	font-weight: 700;
+	letter-spacing: -0.02em;
+	line-height: 1;
+	white-space: nowrap;
+}
+
+.cd-marca a {
+	display: inline-flex;
+	align-items: center;
+	color: var(--wp--preset--color--brote);
+	text-decoration: none;
+}
+
+.cd-marca strong {
+	color: var(--wp--preset--color--cielo);
+	font-weight: inherit;
+}
+
+.cd-marca a::before {
+	content: "";
+	flex: none;
+	width: 40px;
+	height: 40px;
+	margin-right: 0.55em;
+	border-radius: 50%;
+	background: var(--wp--preset--color--base) url(../images/marca/emblema.webp) center / cover no-repeat;
+	box-shadow: 0 0 0 2px color-mix(in srgb, var(--wp--preset--color--base) 20%, transparent);
+}
+
+/* Menú: bruma, y una línea con el degradado de la marca al pasar el mouse o en la sección visible. */
+.cd-encabezado .wp-block-navigation__container {
+	flex-wrap: nowrap;
+	gap: 1.5rem;
+	white-space: nowrap;
+}
+
+.cd-encabezado .wp-block-navigation-item__content {
+	position: relative;
+	color: var(--wp--preset--color--bruma);
+	text-decoration: none;
+	transition: color 0.2s;
+}
+
+.cd-encabezado .wp-block-navigation-item__content::after {
+	content: "";
+	position: absolute;
+	inset: auto 0 -6px;
+	height: 2px;
+	border-radius: 2px;
+	background: var(--wp--preset--gradient--marca);
+	transform: scaleX(0);
+	transform-origin: left;
+	transition: transform 0.3s ease-out;
+}
+
+.cd-encabezado .wp-block-navigation-item__content:is(:hover, :focus-visible, .cd-activo) {
+	color: var(--wp--preset--color--base);
+}
+
+.cd-encabezado .wp-block-navigation-item__content:is(:hover, :focus-visible, .cd-activo)::after {
+	transform: scaleX(1);
+}
+
+.cd-solo-menu-movil {
+	display: none !important;
+}
+
+.cd-encabezado .wp-element-button {
+	padding: 0.65em 1.25em;
+	font-size: var(--wp--preset--font-size--small);
+	white-space: nowrap;
+}
+
+/* Menú abierto en móvil: los enlaces grandes y el botón de demo al final. */
+.wp-block-navigation__responsive-container.is-menu-open {
+	border-top: 3px solid;
+	border-image: var(--wp--preset--gradient--marca) 1;
+}
+
+.wp-block-navigation__responsive-container.is-menu-open :is(.wp-block-navigation__responsive-container-content, .wp-block-navigation__container) {
+	align-items: flex-start !important;
+}
+
+.wp-block-navigation__responsive-container.is-menu-open .wp-block-navigation__container {
+	gap: var(--wp--preset--spacing--40);
+}
+
+.wp-block-navigation__responsive-container.is-menu-open .wp-block-navigation-item__content {
+	color: var(--wp--preset--color--base);
+	font-family: var(--wp--preset--font-family--titulos);
+	font-size: var(--wp--preset--font-size--x-large);
+	font-weight: 700;
+	letter-spacing: -0.025em;
+}
+
+.wp-block-navigation__responsive-container.is-menu-open .cd-solo-menu-movil {
+	display: block !important;
+}
+
+.wp-block-navigation__responsive-container.is-menu-open .cd-solo-menu-movil .wp-block-navigation-item__content {
+	color: var(--wp--preset--color--acento);
+}
+
+/* Hasta 1023px no caben el menú y el botón: el botón se va (el menú móvil lo trae). */
+@media (max-width: 1023px) {
+	.cd-encabezado .cd-boton-encabezado {
+		display: none;
+	}
+}
+
+/* Hasta 860px el menú no cabe en una fila: pasa al botón del menú móvil (el core lo hace recién bajo 600px). */
+@media (min-width: 600px) and (max-width: 860px) {
+	.cd-encabezado .wp-block-navigation__responsive-container-open:not(.always-shown) {
+		display: flex;
+	}
+
+	.cd-encabezado .wp-block-navigation__responsive-container:not(.hidden-by-default):not(.is-menu-open) {
+		display: none;
+	}
+}
+
+@media (max-width: 781px) {
+	.cd-encabezado .cd-marca {
+		font-size: var(--wp--preset--font-size--medium);
+	}
+
+	.cd-encabezado .cd-marca a::before {
+		width: 34px;
+		height: 34px;
+	}
+}
+
+/* Pie oscuro, con la franja de la marca arriba. */
+.wp-site-blocks > footer.wp-block-template-part::before {
+	content: "";
+	display: block;
+	height: 4px;
+	background: var(--wp--preset--gradient--marca);
+}
+
+.wp-site-blocks > footer.wp-block-template-part {
+	margin-block-start: 0;
+}
+
+.cd-pie-marca p {
+	margin: 0;
+	max-width: 24rem;
+}
+
+.cd-menu-pie .wp-block-navigation__container {
+	gap: 0.6rem;
+}
+
+.cd-menu-pie .wp-block-navigation-item__content {
+	color: var(--wp--preset--color--bruma);
+	text-decoration: none;
+}
+
+.cd-menu-pie .wp-block-navigation-item__content:is(:hover, :focus-visible) {
+	color: var(--wp--preset--color--base);
+}
+
+.cd-pie-final {
+	padding-top: var(--wp--preset--spacing--40);
+	border-top: 1px solid var(--cd-linea-clara);
+}
+
+.cd-pie-final p {
+	margin: 0;
+}
+
+/* Ceja: "01", una mini barra con el degradado y el nombre de la sección. */
+.is-style-ceja {
+	display: flex;
+	align-items: center;
+	gap: 0.75em;
+	color: var(--wp--preset--color--primario);
+	font-size: var(--wp--preset--font-size--x-small);
+	font-weight: 600;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+}
+
+.is-style-ceja strong {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.75em;
+	color: var(--wp--preset--color--secundario);
+	font-weight: 700;
+}
+
+.is-style-ceja strong::after {
+	content: "";
+	width: 28px;
+	height: 3px;
+	border-radius: 3px;
+	background: var(--wp--preset--gradient--marca);
+	transform-origin: left;
+}
+
+.is-style-seccion-noche .is-style-ceja {
+	color: var(--wp--preset--color--acento);
+}
+
+.is-style-seccion-noche .is-style-ceja strong {
+	color: var(--wp--preset--color--bruma);
+}
+
+/* Píldora con un punto que late. */
+.is-style-pildora {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.6em;
+	width: fit-content;
+	padding: 0.35em 0.9em;
+	border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+	border-radius: var(--wp--custom--radio--pildora);
+	font-size: var(--wp--preset--font-size--x-small);
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	line-height: 1.4;
+}
+
+.is-style-pildora::before {
+	content: "";
+	flex: none;
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: var(--cd-punto, var(--wp--preset--color--surco));
+}
+
+.is-style-seccion-noche .is-style-pildora {
+	--cd-punto: var(--wp--preset--color--acento);
+	background: var(--cd-velo-claro);
+	color: var(--wp--preset--color--base);
+}
+
+.is-style-seccion-noche .cd-pildora-viva,
+.cd-chip-fuentes {
+	--cd-punto: var(--wp--preset--color--brote);
+}
+
+.cd-sin-punto::before {
+	display: none;
+}
+
+/* Título con lo destacado (<strong>) en el degradado de la marca. */
+.is-style-titulo-marca {
+	text-wrap: balance;
+}
+
+.is-style-titulo-marca strong {
+	background: var(--wp--preset--gradient--marca) 0 0 / 200% 100%;
+	-webkit-background-clip: text;
+	background-clip: text;
+	color: transparent;
+	font-weight: inherit;
+}
+
+@supports not ((background-clip: text) or (-webkit-background-clip: text)) {
+	.is-style-titulo-marca strong {
+		background: none;
+		color: var(--wp--preset--color--acento);
+	}
+}
+
+@media (forced-colors: active) {
+	.is-style-titulo-marca strong {
+		background: none;
+		color: CanvasText;
+	}
+}
+
+/* Lista con checks. */
+.is-style-lista-check {
+	--cd-color-check: var(--wp--preset--color--surco);
+	display: grid;
+	gap: 0.7rem;
+	padding-left: 0;
+	list-style: none;
+}
+
+.is-style-seccion-noche .is-style-lista-check {
+	--cd-color-check: var(--wp--preset--color--brote);
+}
+
+.is-style-lista-check li {
+	position: relative;
+	padding-left: 2rem;
+}
+
+.is-style-lista-check li::before,
+.is-style-lista-check li::after {
+	content: "";
+	position: absolute;
+	top: calc((1.65em - 20px) / 2);
+	left: 0;
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+}
+
+.is-style-lista-check li::before {
+	background: color-mix(in srgb, var(--cd-color-check) 14%, transparent);
+}
+
+.is-style-lista-check li::after {
+	background: var(--cd-color-check);
+	mask: var(--cd-check) center / 12px no-repeat;
+}
+
+.is-style-lista-check strong {
+	color: var(--wp--preset--color--contraste);
+}
+
+/* Tarjetas: suben, toman el color de su perfil y un foco de luz sigue al cursor. */
+.cd-tarjeta {
+	position: relative;
+	isolation: isolate;
+	overflow: hidden;
+	transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+}
+
+.cd-tarjeta::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	background: radial-gradient(220px circle at var(--cd-x, 50%) var(--cd-y, 0%), color-mix(in srgb, var(--cd-color) 16%, transparent), transparent 70%);
+	opacity: 0;
+	transition: opacity 0.3s;
+	pointer-events: none;
+}
+
+.cd-tarjeta p,
+.cd-tarjeta h3,
+.cd-tarjeta ul {
+	margin: 0;
+}
+
+.cd-tarjeta.cd-ancha p {
+	max-width: 46ch;
+}
+
+.cd-icono {
+	display: grid;
+	place-items: center;
+	width: 56px;
+	height: 56px;
+	margin: 0;
+	border-radius: 16px;
+	background: color-mix(in srgb, var(--cd-color, var(--wp--preset--color--cielo)) 18%, var(--wp--preset--color--base));
+	transition: transform 0.3s;
+}
+
+.cd-icono img {
+	width: 28px;
+	height: 28px;
+}
+
+.cd-quiero-demo {
+	margin-top: auto !important;
+	padding-top: var(--wp--preset--spacing--20);
+	font-weight: 600;
+}
+
+.cd-quiero-demo a {
+	text-decoration: none;
+}
+
+.cd-quiero-demo a:hover {
+	text-decoration: underline;
+}
+
+/* Banner: brillo, retícula, campo de píxeles, cifras y panel. */
+.cd-banner,
+.cd-demo {
+	position: relative;
+	isolation: isolate;
+	overflow: hidden;
+}
+
+.cd-banner {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	min-height: max(560px, calc(100vh - var(--wp--custom--encabezado--alto)));
+}
+
+.cd-banner > *,
+.cd-demo > * {
+	position: relative;
+	z-index: 1;
+	width: 100%;
+}
+
+/* El campo de píxeles: denso abajo y hacia el borde, como en el logo. */
+.cd-banner::before,
+.cd-demo::before {
+	content: "";
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	width: min(50%, 980px);
+	height: 100%;
+	background: url(../images/ilustraciones/pixeles.svg) left bottom / cover no-repeat;
+	opacity: 0.85;
+	transform: scaleX(-1);
+	pointer-events: none;
+}
+
+.cd-banner::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background-image: linear-gradient(var(--cd-velo-claro) 1px, transparent 1px), linear-gradient(90deg, var(--cd-velo-claro) 1px, transparent 1px);
+	background-size: 48px 48px;
+	mask-image: radial-gradient(ellipse 70% 65% at 70% 40%, currentColor 15%, transparent 75%);
+	pointer-events: none;
+}
+
+.cd-banner .wp-block-buttons {
+	margin-top: var(--wp--preset--spacing--50);
+}
+
+.cd-banner .has-large-font-size {
+	max-width: 36rem;
+}
+
+.cd-cifras {
+	margin-top: var(--wp--preset--spacing--60);
+}
+
+.cd-cifra {
+	padding: 0 1.5rem;
+	border-left: 1px solid color-mix(in srgb, var(--wp--preset--color--base) 15%, transparent);
+}
+
+.cd-cifra:first-child {
+	padding-left: 0;
+	border-left: 0;
+}
+
+.cd-cifra p {
+	margin: 0;
+}
+
+.cd-cifra-numero {
+	color: var(--wp--preset--color--base);
+	font-family: var(--wp--preset--font-family--titulos);
+	font-size: var(--wp--preset--font-size--x-large);
+	font-variant-numeric: tabular-nums;
+	font-weight: 700;
+	letter-spacing: -0.02em;
+	line-height: 1;
+}
+
+.cd-cifra-rotulo {
+	max-width: 11rem;
+	line-height: 1.35;
+}
+
+.cd-panel {
+	position: relative;
+	max-width: 560px;
+	margin-inline: auto;
+	transform: perspective(1000px) rotateX(var(--cd-rx, 0deg)) rotateY(var(--cd-ry, 0deg));
+	transition: transform 0.4s ease-out;
+}
+
+.cd-panel-imagen {
+	margin: 0;
+}
+
+.cd-panel-imagen img {
+	display: block;
+	width: 100%;
+	height: auto;
+	aspect-ratio: 5 / 4;
+	border-radius: var(--wp--custom--radio--tarjeta);
+	box-shadow: var(--cd-sombra-honda), 0 0 0 1px var(--cd-velo-claro);
+}
+
+.cd-chip {
+	position: absolute;
+	z-index: 2;
+	margin: 0;
+	border-radius: 14px;
+	box-shadow: 0 18px 40px color-mix(in srgb, var(--wp--preset--color--noche) 45%, transparent);
+}
+
+.cd-chip-recomendacion {
+	bottom: -7%;
+	left: -6%;
+	max-width: 15.5rem;
+	padding: 0.8rem 1rem;
+	border-left: 4px solid var(--wp--preset--color--acento);
+	background: var(--wp--preset--color--base);
+}
+
+.cd-chip-recomendacion p {
+	margin: 0;
+}
+
+.cd-chip-rotulo {
+	color: var(--wp--preset--color--surco);
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.cd-chip-texto {
+	color: var(--wp--preset--color--contraste);
+	font-family: var(--wp--preset--font-family--titulos);
+	font-size: var(--wp--preset--font-size--small);
+	font-weight: 600;
+	line-height: 1.35;
+}
+
+.cd-chip-fuentes {
+	top: -5%;
+	right: -3%;
+	display: flex;
+	align-items: center;
+	gap: 0.5em;
+	padding: 0.5rem 0.9rem;
+	border: 1px solid var(--cd-linea-clara);
+	background: color-mix(in srgb, var(--wp--preset--color--noche) 75%, transparent);
+	backdrop-filter: blur(10px);
+	color: var(--wp--preset--color--base);
+	font-weight: 600;
+}
+
+.cd-chip-fuentes::before {
+	content: "";
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background: var(--cd-punto);
+}
+
+@media (max-width: 781px) {
+	.cd-banner {
+		min-height: 0;
+	}
+
+	/* En una columna, los píxeles quedan solo detrás del panel, no del texto. */
+	.cd-banner::before {
+		width: 100%;
+		height: 38%;
+	}
+
+	.cd-banner-panel {
+		padding-inline: 5%;
+	}
+
+	.cd-chip-recomendacion {
+		left: -2%;
+	}
+
+	.cd-chip-fuentes {
+		right: 0;
+	}
+
+	.cd-cifra {
+		padding: 0 0.9rem;
+	}
+
+	.cd-cifra-numero {
+		font-size: var(--wp--preset--font-size--large);
+	}
+}
+
+/* Cómo funciona: la línea que une los pasos y el paquete de datos que la recorre. */
+.cd-pasos {
+	--cd-hueco: var(--wp--preset--spacing--50);
+	position: relative;
+}
+
+.cd-paso {
+	position: relative;
+}
+
+.cd-paso p,
+.cd-paso h3 {
+	margin: 0;
+}
+
+.cd-nodo {
+	position: relative;
+	z-index: 1;
+	display: grid;
+	place-items: center;
+	width: 56px;
+	height: 56px;
+	margin: 0;
+	border: 2px solid var(--wp--preset--color--brote);
+	border-radius: 50%;
+	background: var(--wp--preset--color--base);
+	box-shadow: 0 0 0 6px color-mix(in srgb, var(--wp--preset--color--brote) 16%, transparent);
+}
+
+.cd-nodo img {
+	width: 26px;
+	height: 26px;
+}
+
+.cd-paso-numero {
+	margin-top: var(--wp--preset--spacing--20) !important;
+	color: var(--wp--preset--color--surco);
+	font-family: var(--wp--preset--font-family--titulos);
+	font-size: var(--wp--preset--font-size--small);
+	font-variant-numeric: tabular-nums;
+	font-weight: 700;
+	letter-spacing: 0.14em;
+	line-height: 1;
+}
+
+.cd-pasos::before,
+.cd-pasos::after {
+	content: "";
+	position: absolute;
+	top: 27px;
+	left: 28px;
+	width: calc(75% + 0.75 * var(--cd-hueco));
+	pointer-events: none;
+}
+
+.cd-pasos::before {
+	height: 2px;
+	border-radius: 2px;
+	background: var(--wp--preset--gradient--marca);
+	transform-origin: left;
+}
+
+.cd-pasos::after {
+	top: 24px;
+	height: 8px;
+	background: linear-gradient(var(--wp--preset--color--acento), var(--wp--preset--color--acento)) 0 50% / 8px 8px no-repeat;
+	opacity: 0;
+}
+
+@media (max-width: 782px) {
+	.cd-pasos::before,
+	.cd-pasos::after {
+		display: none;
+	}
+}
+
+@media (max-width: 480px) {
+	.cd-paso {
+		min-height: 56px;
+		padding-left: 76px;
+	}
+
+	.cd-nodo {
+		position: absolute;
+		top: 0;
+		left: 0;
+	}
+
+	.cd-pasos::before,
+	.cd-pasos::after {
+		display: block;
+		top: 28px;
+		left: 27px;
+		width: 2px;
+		height: calc(100% - 28px);
+		transform-origin: top;
+	}
+
+	.cd-pasos::after {
+		left: 24px;
+		width: 8px;
+		background-position: 50% 0;
+	}
+}
+
+/* Reportes: la ventana de aplicación, sus pestañas y las capturas. */
+.is-style-ventana {
+	position: relative;
+	overflow: hidden;
+	border: 1px solid var(--cd-linea-clara);
+	border-radius: var(--wp--custom--radio--tarjeta);
+	background: color-mix(in srgb, var(--wp--preset--color--base) 4%, transparent);
+	box-shadow: var(--cd-sombra-honda);
+}
+
+.is-style-ventana::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(105deg, transparent 40%, color-mix(in srgb, var(--wp--preset--color--base) 12%, transparent) 50%, transparent 60%);
+	transform: translateX(-100%);
+	pointer-events: none;
+}
+
+.cd-ventana-barra {
+	padding: 0.75rem 1.25rem;
+	border-bottom: 1px solid var(--cd-linea-clara);
+	background: var(--cd-velo-claro);
+}
+
+.cd-ventana-titulo {
+	display: flex;
+	align-items: center;
+	gap: 0.9rem;
+	margin: 0;
+	color: var(--wp--preset--color--base);
+	font-family: var(--wp--preset--font-family--titulos);
+	font-weight: 600;
+}
+
+.cd-ventana-titulo::before {
+	content: "";
+	flex: none;
+	width: 44px;
+	height: 10px;
+	background:
+		radial-gradient(circle 5px at 5px 5px, var(--wp--preset--color--acento) 95%, transparent),
+		radial-gradient(circle 5px at 22px 5px, var(--wp--preset--color--brote) 95%, transparent),
+		radial-gradient(circle 5px at 39px 5px, var(--wp--preset--color--cielo) 95%, transparent);
+}
+
+.cd-ventana-pildoras p {
+	margin: 0;
+}
+
+.cd-reportes .wp-block-tabs {
+	margin: 0;
+}
+
+.cd-reportes .wp-block-tab-list {
+	display: flex;
+	flex-wrap: nowrap;
+	gap: 0.25rem;
+	overflow-x: auto;
+	padding: 0 0.75rem;
+	border-bottom: 1px solid var(--cd-linea-clara);
+	scrollbar-width: none;
+	mask-image: linear-gradient(90deg, currentColor calc(100% - 2rem), transparent);
+}
+
+.cd-reportes .wp-block-tab-list::-webkit-scrollbar {
+	display: none;
+}
+
+.cd-reportes .wp-block-tab-list button {
+	position: relative;
+	flex: none;
+	padding: 0.95rem 1rem;
+	border: 0;
+	background: none;
+	color: var(--wp--preset--color--bruma);
+	font-family: var(--wp--preset--font-family--texto);
+	font-size: var(--wp--preset--font-size--small);
+	font-weight: 600;
+	white-space: nowrap;
+	cursor: pointer;
+	transition: color 0.2s;
+}
+
+.cd-reportes .wp-block-tab-list button:is(:hover, [aria-selected="true"]) {
+	color: var(--wp--preset--color--base);
+}
+
+.cd-reportes .wp-block-tab-list button::after {
+	content: "";
+	position: absolute;
+	inset: auto 1rem -1px;
+	height: 2px;
+	border-radius: 2px;
+	background: var(--wp--preset--gradient--marca);
+	transform: scaleX(0);
+	transition: transform 0.35s ease-out;
+}
+
+.cd-reportes .wp-block-tab-list button[aria-selected="true"]::after {
+	transform: scaleX(1);
+}
+
+.cd-reportes .wp-block-tab-panel {
+	padding: 1.25rem;
+}
+
+.cd-captura {
+	max-width: 1100px;
+	margin: 0 auto;
+}
+
+.cd-captura img {
+	display: block;
+	width: 100%;
+	height: auto;
+	aspect-ratio: 1100 / 627;
+	border-radius: 10px;
+	background: var(--wp--preset--color--base);
+}
+
+.cd-leyenda {
+	max-width: 1100px;
+	margin: 1rem auto 0;
+	padding: 0.85rem 1.1rem;
+	border: 1px solid var(--cd-linea-clara);
+	border-radius: 12px;
+	background: var(--cd-velo-claro);
+}
+
+.cd-leyenda strong {
+	color: var(--wp--preset--color--base);
+}
+
+.cd-reportes-accion {
+	margin-top: var(--wp--preset--spacing--60) !important;
+}
+
+/* Sin JS, las pestañas del core no muestran ningún panel: se muestran todos, uno debajo del otro. */
+html:not(.cd-con-js) .cd-reportes .wp-block-tab-list {
+	display: none;
+}
+
+html:not(.cd-con-js) .cd-reportes .wp-block-tab-panel[hidden] {
+	display: block !important;
+}
+
+/* Beneficios: grilla bento. */
+.cd-bento .cd-tarjeta {
+	height: 100%;
+	box-sizing: border-box;
+}
+
+/* Por qué CampoData: la tarjeta de comparación. */
+.cd-comparacion {
+	overflow: hidden;
+	box-shadow: var(--wp--custom--brillo--marino);
+}
+
+.cd-comparacion-cabecera {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	margin: 0;
+	padding: 0.9rem 1.25rem;
+	background: var(--wp--preset--gradient--cierre);
+	color: var(--wp--preset--color--base);
+	font-family: var(--wp--preset--font-family--titulos);
+	font-weight: 600;
+}
+
+.cd-comparacion-cabecera::before {
+	content: "";
+	flex: none;
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	background: var(--wp--preset--color--base) url(../images/marca/emblema.webp) center / cover no-repeat;
+}
+
+.wp-block-table.is-style-comparacion {
+	margin: 0;
+}
+
+.wp-block-table.is-style-comparacion table {
+	border-collapse: collapse;
+}
+
+.wp-block-table.is-style-comparacion :is(th, td) {
+	box-sizing: border-box;
+	padding: 0.8rem 1.25rem;
+	border: 0;
+	border-bottom: 1px solid var(--wp--preset--color--borde);
+	text-align: left;
+}
+
+.wp-block-table.is-style-comparacion thead {
+	border-bottom: 0;
+}
+
+.wp-block-table.is-style-comparacion thead th {
+	background: var(--wp--preset--color--suave);
+	color: var(--wp--preset--color--secundario);
+	font-size: var(--wp--preset--font-size--x-small);
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.wp-block-table.is-style-comparacion :is(th, td):first-child {
+	width: 42%;
+	color: var(--wp--preset--color--contraste);
+}
+
+.wp-block-table.is-style-comparacion thead th:first-child {
+	color: var(--wp--preset--color--secundario);
+}
+
+.wp-block-table.is-style-comparacion :is(th, td):nth-child(2) {
+	width: 22%;
+	text-align: center;
+}
+
+.wp-block-table.is-style-comparacion :is(th, td):nth-child(3) {
+	color: var(--wp--preset--color--secundario);
+}
+
+/* El "Sí" de la columna CampoData se oculta a la vista (el lector de pantalla lo lee) y se dibuja un check. */
+.wp-block-table.is-style-comparacion tbody td:nth-child(2) {
+	font-size: 0;
+}
+
+.wp-block-table.is-style-comparacion tbody td:nth-child(2)::before {
+	content: "";
+	display: inline-block;
+	width: 18px;
+	height: 18px;
+	background: var(--wp--preset--color--surco);
+	mask: var(--cd-check) center / contain no-repeat;
+	vertical-align: middle;
+}
+
+.wp-block-table.is-style-comparacion tbody tr:last-child td {
+	border-bottom: 0;
+}
+
+/* En pantallas chicas, los rótulos sin mayúsculas ni interletra, para que no se corten a mitad de palabra. */
+@media (max-width: 600px) {
+	.wp-block-table.is-style-comparacion :is(th, td) {
+		padding: 0.7rem 0.6rem;
+		word-break: normal;
+	}
+
+	.wp-block-table.is-style-comparacion thead th {
+		letter-spacing: 0;
+		text-transform: none;
+	}
+
+	.wp-block-table.is-style-comparacion :is(th, td):first-child {
+		width: 42%;
+		padding-left: 1rem;
+		hyphens: auto;
+	}
+
+	.wp-block-table.is-style-comparacion :is(th, td):nth-child(2) {
+		width: 26%;
+	}
+}
+
+/* Solicitar demo: el degradado que se desplaza y el formulario sobre cristal. */
+.cd-demo::before {
+	opacity: 0.5;
+}
+
+.cd-demo::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	background: var(--wp--preset--gradient--cierre) 0 50% / 200% 200%;
+	pointer-events: none;
+}
+
+.cd-demo .wp-block-buttons {
+	margin-top: var(--wp--preset--spacing--40);
+}
+
+.cd-datos p {
+	margin: 0;
+	color: var(--wp--preset--color--base);
+}
+
+.is-style-cristal {
+	padding: var(--wp--preset--spacing--50);
+	border: 1px solid color-mix(in srgb, var(--wp--preset--color--base) 14%, transparent);
+	border-radius: var(--wp--custom--radio--tarjeta);
+	background: var(--cd-velo-claro);
+	backdrop-filter: blur(12px);
+	box-shadow: var(--cd-sombra-honda);
+}
+
+/* Formulario que arma el mensaje de WhatsApp. Solo se muestra si el JS está activo. */
+.cd-formulario {
+	display: none;
+}
+
+.cd-formulario.cd-activo {
+	display: grid;
+	gap: var(--wp--preset--spacing--40);
+}
+
+.cd-tarjeta-formulario:not(:has(.cd-activo)) {
+	display: none;
+}
+
+.cd-formulario p {
+	margin: 0;
+}
+
+.cd-formulario label,
+.cd-formulario legend {
+	display: block;
+	margin-bottom: 0.5em;
+	padding: 0;
+	color: var(--wp--preset--color--base);
+	font-size: var(--wp--preset--font-size--small);
+	font-weight: 600;
+}
+
+.cd-formulario fieldset {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+.cd-formulario input[type="text"] {
+	box-sizing: border-box;
+	width: 100%;
+	padding: 0.85em 1em;
+	border: 1px solid color-mix(in srgb, var(--wp--preset--color--base) 22%, transparent);
+	border-radius: var(--wp--custom--radio--boton);
+	background: color-mix(in srgb, var(--wp--preset--color--noche) 55%, transparent);
+	color: var(--wp--preset--color--base);
+	font: inherit;
+}
+
+.cd-formulario input::placeholder {
+	color: var(--wp--preset--color--bruma);
+	opacity: 0.8;
+}
+
+.cd-formulario input[aria-invalid="true"] {
+	border-color: var(--wp--preset--color--acento);
+}
+
+.cd-opciones div {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}
+
+.cd-opciones label {
+	position: relative;
+	margin: 0;
+}
+
+.cd-opciones input {
+	position: absolute;
+	opacity: 0;
+}
+
+.cd-opciones span {
+	display: inline-block;
+	padding: 0.5em 1em;
+	border: 1px solid color-mix(in srgb, var(--wp--preset--color--base) 25%, transparent);
+	border-radius: var(--wp--custom--radio--pildora);
+	color: var(--wp--preset--color--bruma);
+	font-weight: 500;
+	cursor: pointer;
+	transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.cd-opciones input:checked + span {
+	border-color: var(--wp--preset--color--acento);
+	background: var(--wp--preset--color--acento);
+	color: var(--wp--preset--color--noche);
+}
+
+.cd-opciones input:focus-visible + span {
+	outline: 2px solid var(--wp--preset--color--acento);
+	outline-offset: 2px;
+}
+
+.cd-formulario button {
+	width: 100%;
+	border: 0;
+	background: var(--wp--preset--color--acento);
+	color: var(--wp--preset--color--noche);
+	cursor: pointer;
+}
+
+.cd-error {
+	color: var(--wp--preset--color--acento);
+	font-weight: 600;
+}
+
+.cd-nota {
+	color: var(--wp--preset--color--bruma);
+	font-size: var(--wp--preset--font-size--small);
+}
+
+/* Botones: sombra al pasar el mouse y una línea con el degradado que crece desde el centro. */
+.wp-element-button {
+	position: relative;
+	overflow: hidden;
+	transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s, color 0.2s;
+}
+
+:where(.wp-block-button:not(.is-style-outline)) .wp-element-button::after,
+button.wp-element-button::after {
+	content: "";
+	position: absolute;
+	inset: auto 0 0;
+	height: 2px;
+	background: var(--wp--preset--gradient--marca);
+	transform: scaleX(0);
+	transition: transform 0.35s ease-out;
+}
+
+.wp-element-button:is(:hover, :focus-visible)::after {
+	transform: scaleX(1);
+}
+
+.is-style-seccion-noche .is-style-outline .wp-element-button {
+	color: var(--wp--preset--color--base);
+}
+
+.is-style-seccion-noche .is-style-outline .wp-element-button:hover {
+	background: var(--cd-velo-claro);
+}
+
+/* Aparición al bajar: el estado inicial solo existe con cd-movimiento; el JS agrega cd-visible. */
+.cd-movimiento :where(.wp-block-post-content > section:not(.cd-banner), .cd-pie) > :where(:not(.cd-escalonado, .sin-movimiento)),
+.cd-movimiento :where(.cd-escalonado > :not(.sin-movimiento)) {
+	opacity: 0;
+}
+
+.cd-movimiento .cd-visible {
+	opacity: 1;
+	animation: cd-aparecer var(--wp--custom--movimiento--duracion) ease-out var(--cd-retraso, 0s) backwards;
+}
+
+.cd-escalonado > *,
+.cd-banner-texto > *,
+.is-style-lista-check > *,
+.is-style-comparacion tbody tr,
+.cd-pasos > * {
+	--cd-retraso: min(calc(var(--cd-escalon, var(--wp--custom--movimiento--escalon)) * var(--cd-n, 0)), var(--cd-tope, 0.4s));
+}
+
+:is(.cd-escalonado, .cd-banner-texto, .is-style-lista-check, tbody) > :nth-child(2) { --cd-n: 1; }
+:is(.cd-escalonado, .cd-banner-texto, .is-style-lista-check, tbody) > :nth-child(3) { --cd-n: 2; }
+:is(.cd-escalonado, .cd-banner-texto, .is-style-lista-check, tbody) > :nth-child(4) { --cd-n: 3; }
+:is(.cd-escalonado, .cd-banner-texto, .is-style-lista-check, tbody) > :nth-child(5) { --cd-n: 4; }
+:is(.cd-escalonado, .cd-banner-texto, .is-style-lista-check, tbody) > :nth-child(6) { --cd-n: 5; }
+:is(.cd-escalonado, .cd-banner-texto, .is-style-lista-check, tbody) > :nth-child(n + 7) { --cd-n: 6; }
+
+.cd-movimiento .is-style-ceja.cd-visible strong::after {
+	animation: cd-dibujar 0.8s ease-out 0.25s backwards;
+}
+
+/* M4 · Entrada del banner al cargar, y M5 · el panel que entra, flota y muestra sus tarjetas. */
+.cd-movimiento .cd-banner-texto > * {
+	--cd-escalon: 0.08s;
+	--cd-tope: 0.5s;
+	animation: cd-aparecer 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) calc(0.1s + var(--cd-retraso)) backwards;
+}
+
+.cd-movimiento .cd-banner-panel {
+	animation: cd-entrar 1s cubic-bezier(0.2, 0.7, 0.2, 1) 0.35s backwards, cd-flotar 6s ease-in-out 1.4s infinite alternate;
+}
+
+.cd-movimiento .cd-chip-fuentes {
+	animation: cd-asomar 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) 1.6s backwards;
+}
+
+.cd-movimiento .cd-chip-recomendacion {
+	animation: cd-asomar 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) 2.2s backwards, cd-flotar 5s ease-in-out 2.7s infinite alternate-reverse;
+}
+
+/* M3 · Degradado vivo en el título. */
+.cd-movimiento .is-style-titulo-marca strong {
+	animation: cd-degradado 8s ease-in-out infinite alternate;
+}
+
+/* Puntos que laten en las píldoras y en el panel. */
+.cd-movimiento :is(.is-style-pildora, .cd-chip-fuentes)::before {
+	animation: cd-latir 2s ease-out infinite;
+}
+
+.cd-sin-punto::before {
+	animation: none !important;
+}
+
+/* M9 · Cómo funciona: la línea se dibuja, los nodos se encienden en orden y pasa el paquete de datos. */
+.cd-movimiento .cd-pasos:not(.cd-activa)::before {
+	transform: scale(0);
+}
+
+.cd-movimiento .cd-pasos.cd-activa::before {
+	animation: cd-dibujar 1.6s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+}
+
+.cd-movimiento .cd-pasos.cd-activa::after {
+	animation: cd-paquete 4s linear 1.8s infinite;
+}
+
+.cd-movimiento .cd-pasos:not(.cd-activa) .cd-nodo {
+	border-color: var(--wp--preset--color--borde);
+	box-shadow: none;
+}
+
+.cd-movimiento .cd-pasos.cd-activa .cd-nodo {
+	animation: cd-encender 0.5s ease-out calc(0.15s + var(--cd-n, 0) * 0.45s) backwards;
+}
+
+.cd-pasos > :nth-child(2) { --cd-n: 1; }
+.cd-pasos > :nth-child(3) { --cd-n: 2; }
+.cd-pasos > :nth-child(4) { --cd-n: 3; }
+
+@media (max-width: 480px) {
+	.cd-movimiento .cd-pasos.cd-activa::before {
+		animation-name: cd-dibujar-alto;
+	}
+
+	.cd-movimiento .cd-pasos.cd-activa::after {
+		animation-name: cd-paquete-alto;
+	}
+}
+
+/* M12 · Reportes: el reflejo que cruza la ventana una vez. M15 · Los checks se dibujan. */
+.cd-movimiento .is-style-ventana.cd-activa::after {
+	animation: cd-reflejo 0.9s ease-out 0.3s;
+}
+
+.cd-movimiento .is-style-lista-check:not(.cd-activa) li::after {
+	clip-path: inset(0 100% 0 0);
+}
+
+.cd-movimiento .is-style-lista-check.cd-activa li::after {
+	--cd-escalon: 0.12s;
+	--cd-tope: 1s;
+	animation: cd-trazo 0.4s ease-out calc(0.2s + var(--cd-retraso)) backwards;
+}
+
+.cd-movimiento .is-style-comparacion:not(.cd-activa) tbody tr {
+	opacity: 0;
+}
+
+.cd-movimiento .is-style-comparacion.cd-activa tbody tr {
+	--cd-escalon: 0.07s;
+	animation: cd-aparecer 0.45s ease-out calc(0.2s + var(--cd-retraso)) backwards;
+}
+
+/* M13 · El cierre se desplaza lento. */
+.cd-movimiento .cd-demo::after {
+	animation: cd-cierre 16s ease-in-out infinite alternate;
+}
+
+/* Fuera de la vista o con la pestaña oculta, lo que se repite se pausa (y el campo de píxeles no se pinta). */
+.cd-fuera::before,
+.cd-fuera .cd-panel-imagen img {
+	visibility: hidden;
+}
+
+:is(.cd-fuera, .cd-oculta) *,
+:is(.cd-fuera, .cd-oculta) *::before,
+:is(.cd-fuera, .cd-oculta) *::after,
+.cd-fuera::after {
+	animation-play-state: paused !important;
+}
+
+/* Al pasar el mouse: botones, tarjetas, íconos, redes y el emblema. */
+@media (prefers-reduced-motion: no-preference) {
+	html {
+		scroll-behavior: smooth;
+	}
+
+	.wp-element-button:hover {
+		box-shadow: var(--wp--custom--brillo--marino);
+		transform: translateY(-2px);
+	}
+
+	.is-style-seccion-noche .wp-element-button:hover {
+		box-shadow: var(--wp--custom--brillo--acento);
+	}
+
+	.wp-block-social-link {
+		transition: transform 0.25s;
+	}
+
+	.wp-block-social-link:hover {
+		transform: translateY(-2px);
+	}
+
+	.cd-marca a:hover::before {
+		animation: cd-girar 0.4s ease-in-out;
+	}
+
+	.cd-reportes .cd-interactuada .wp-block-tab-panel:not([hidden]) {
+		animation: cd-aparecer-corto 0.3s ease-out;
+	}
+
+	.is-style-cristal.cd-resaltado {
+		animation: cd-anillo 0.9s ease-out;
+	}
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+	.cd-tarjeta:hover {
+		border-color: var(--cd-color);
+		box-shadow: var(--wp--custom--brillo--marino);
+		transform: translateY(-4px);
+	}
+
+	.cd-beneficio:hover .cd-icono {
+		transform: translateY(-2px) rotate(-4deg);
+	}
+}
+
+@media (hover: hover) {
+	.cd-tarjeta:hover::before {
+		opacity: 1;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	::before,
+	::after {
+		transition-duration: 0.01ms !important;
+	}
+}
+
+@keyframes cd-aparecer {
+	from {
+		opacity: 0;
+		transform: translateY(var(--wp--custom--movimiento--distancia));
+	}
+}
+
+@keyframes cd-aparecer-corto {
+	from {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+}
+
+@keyframes cd-entrar {
+	from {
+		opacity: 0;
+		transform: translateX(30px);
+	}
+}
+
+@keyframes cd-asomar {
+	from {
+		opacity: 0;
+		transform: translateY(12px) scale(0.96);
+	}
+}
+
+@keyframes cd-flotar {
+	from {
+		transform: translateY(-6px);
+	}
+
+	to {
+		transform: translateY(6px);
+	}
+}
+
+@keyframes cd-dibujar {
+	from {
+		transform: scaleX(0);
+	}
+}
+
+@keyframes cd-dibujar-alto {
+	from {
+		transform: scaleY(0);
+	}
+}
+
+@keyframes cd-degradado {
+	to {
+		background-position: 100% 0;
+	}
+}
+
+@keyframes cd-latir {
+	from {
+		box-shadow: 0 0 0 0 color-mix(in srgb, var(--cd-punto) 60%, transparent);
+	}
+
+	to {
+		box-shadow: 0 0 0 8px transparent;
+	}
+}
+
+@keyframes cd-paquete {
+	0% {
+		background-position: 0 50%;
+		opacity: 0;
+	}
+
+	10%,
+	90% {
+		opacity: 1;
+	}
+
+	100% {
+		background-position: 100% 50%;
+		opacity: 0;
+	}
+}
+
+@keyframes cd-paquete-alto {
+	0% {
+		background-position: 50% 0;
+		opacity: 0;
+	}
+
+	10%,
+	90% {
+		opacity: 1;
+	}
+
+	100% {
+		background-position: 50% 100%;
+		opacity: 0;
+	}
+}
+
+@keyframes cd-encender {
+	from {
+		border-color: var(--wp--preset--color--borde);
+		box-shadow: 0 0 0 0 transparent;
+	}
+}
+
+@keyframes cd-reflejo {
+	to {
+		transform: translateX(100%);
+	}
+}
+
+@keyframes cd-trazo {
+	from {
+		clip-path: inset(0 100% 0 0);
+	}
+}
+
+@keyframes cd-cierre {
+	to {
+		background-position: 100% 50%;
+	}
+}
+
+@keyframes cd-girar {
+	50% {
+		transform: rotate(8deg);
+	}
+}
+
+@keyframes cd-anillo {
+	0%,
+	50% {
+		box-shadow: 0 0 0 4px var(--wp--preset--color--acento), var(--cd-sombra-honda);
+	}
+}

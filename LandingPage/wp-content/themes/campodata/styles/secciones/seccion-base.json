@@ -1,0 +1,31 @@
+{
+	"$schema": "https://schemas.wp.org/wp/7.1/theme.json",
+	"version": 3,
+	"title": "Sección base",
+	"slug": "seccion-base",
+	"blockTypes": [ "core/group" ],
+	"styles": {
+		"color": {
+			"background": "var:preset|color|base",
+			"text": "var:preset|color|secundario"
+		},
+		"elements": {
+			"heading": {
+				"color": {
+					"text": "var:preset|color|contraste"
+				}
+			},
+			"link": {
+				"color": {
+					"text": "var:preset|color|primario"
+				}
+			},
+			"button": {
+				"color": {
+					"background": "var:preset|color|primario",
+					"text": "var:preset|color|base"
+				}
+			}
+		}
+	}
+}

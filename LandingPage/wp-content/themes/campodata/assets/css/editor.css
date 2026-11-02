@@ -1,0 +1,21 @@
+/* CampoData: ajustes solo para el editor. */
+
+/* En el editor no hay JS de la portada: el formulario y su tarjeta se muestran siempre. */
+.cd-tarjeta-formulario {
+	display: block !important;
+}
+
+.cd-formulario {
+	display: grid;
+	gap: 1.5rem;
+}
+
+/* El encabezado fijo y la altura mínima del banner no ayudan al editar. */
+.wp-site-blocks > header.wp-block-template-part,
+.editor-styles-wrapper header.wp-block-template-part {
+	position: static;
+}
+
+.cd-banner {
+	min-height: 0;
+}

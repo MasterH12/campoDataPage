@@ -8,7 +8,10 @@ TITULO="CampoData"
 IDIOMA="es_CL"
 TEMA="campodata"
 PORTADA_SLUG="inicio"
-PORTADA_CONTENIDO='<!-- wp:pattern {"slug":"campodata/inicio-provisional"} /-->'
+PORTADA_CONTENIDO='<!-- wp:pattern {"slug":"campodata/landing"} /-->'
+# Contenido que la spec 01 le daba a "Inicio": si sigue igual, se migra a la landing.
+PORTADA_PROVISIONAL='<!-- wp:pattern {"slug":"campodata/inicio-provisional"} /-->'
+LEMA="Gestión simple para tu predio"
 
 paso_actual=""
 paso() {
@@ -106,7 +109,8 @@ default_comment_status closed
 default_ping_status closed
 blog_public 0
 OPCIONES
-echo "Zona horaria, formatos de fecha, comentarios e indexación al día."
+wp option update blogdescription "$LEMA" --quiet
+echo "Lema, zona horaria, formatos de fecha, comentarios e indexación al día."
 
 paso "Enlaces permanentes"
 wp rewrite structure '/%postname%/' --quiet
@@ -166,14 +170,31 @@ if [ -n "$sobrantes" ]; then
 fi
 echo "Tema activo: $TEMA. Respaldo: $respaldo."
 
+paso "Datos de contacto"
+# Solo la primera vez: después se editan en Ajustes → Datos de contacto y no se pisan.
+if [ -n "$(wp option list --search=campodata_contacto --field=option_name)" ]; then
+	echo "Ya existen: se editan en Ajustes → Datos de contacto."
+else
+	wp option add campodata_contacto "$(cat config/contacto-inicial.json)" --format=json --quiet
+	echo "Creados desde config/contacto-inicial.json."
+fi
+
 paso "Portada"
 portada=$(wp post list --post_type=page --name="$PORTADA_SLUG" --post_status=any --field=ID --posts_per_page=1)
 if [ -z "$portada" ]; then
 	portada=$(wp post create --post_type=page --post_status=publish --post_title="Inicio" \
 		--post_name="$PORTADA_SLUG" --post_content="$PORTADA_CONTENIDO" --porcelain)
-	echo "Página \"Inicio\" creada (ID $portada)."
+	echo "Página \"Inicio\" creada con la landing (ID $portada)."
 else
-	echo "La página \"Inicio\" ya existía (ID $portada)."
+	case "$(wp post get "$portada" --field=post_content)" in
+		"$PORTADA_CONTENIDO")
+			echo "La página \"Inicio\" ya tiene la landing (ID $portada)." ;;
+		"$PORTADA_PROVISIONAL")
+			wp post update "$portada" --post_content="$PORTADA_CONTENIDO" --quiet
+			echo "Migración de la spec 01: \"Inicio\" pasa del patrón provisional a la landing (ID $portada)." ;;
+		*)
+			aviso "La página \"Inicio\" (ID $portada) tiene contenido propio: no se modifica." ;;
+	esac
 fi
 wp option update show_on_front page --quiet
 wp option update page_on_front "$portada" --quiet
