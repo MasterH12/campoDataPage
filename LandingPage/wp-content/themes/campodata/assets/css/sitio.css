@@ -632,15 +632,6 @@ html {
 	color: var(--wp--preset--color--bruma);
 }
 
-/* En las tarjetas de Para quién, la imagen va al pie, junto al enlace, a la misma altura en las dos. */
-.cd-perfil .cd-marco {
-	margin-top: auto !important;
-}
-
-.cd-perfil .cd-marco + .cd-quiero-demo {
-	margin-top: 0 !important;
-}
-
 .cd-ejemplo-accion h3 {
 	margin: 0;
 }

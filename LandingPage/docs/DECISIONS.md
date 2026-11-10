@@ -399,6 +399,7 @@ Sin cambios: la implementación sigue la spec 01 (con la corrección de D13 ya i
 - **Qué decía la spec:** §6.2: entre el ícono y el título.
 - **Qué se hizo:** la imagen va después de la lista, justo antes de "Quiero una demo", y las dos quedan a la misma altura.
 - **Por qué:** las dos imágenes tienen proporciones muy distintas (1024 × 295 y 859 × 527), y arriba desalineaban los títulos de las tarjetas.
+- **Ajuste posterior (2026-11-10, pedido del usuario):** la imagen ya no se empuja al pie: va justo debajo de la lista, y el pie de la tarjeta lo ocupa solo "Quiero una demo". Empujada al pie, en "Dueños de lecherías" (lista corta) quedaba un hueco grande sobre la imagen.
 
 ### C18 · Por qué CampoData alineado arriba
 
