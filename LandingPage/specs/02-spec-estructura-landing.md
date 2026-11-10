@@ -6,7 +6,7 @@
 **Modelo:** la spec 02 de Siete Colores y `Clientes Web/FRAMEWORK-WORDPRESS.md` (§6)
 **Rama de trabajo:** `dev`
 **Depende de:** spec 01 implementada y en commits (commit `4f82a53`).
-**Versión:** 2 · 2026-11-02
+**Versión:** 4 · 2026-11-09
 
 ### Historial de decisiones
 
@@ -15,6 +15,8 @@
 | v1 | Primera versión. Pedido del usuario: una landing de una sola página, más atractiva que la actual para **asesores de lecherías, ganaderos y dueños de esos rubros**, que transmita que CampoData es **tecnología nueva**, con animaciones y un diseño moderno. El usuario entregó el logo nuevo (JPG de 469 × 551). Los supuestos y las preguntas están en §18 |
 | v1 (ejecución) | El usuario pidió implementarla tal como está (2026-11-02): **quedan confirmados los textos (propuesta)**; lo que es texto guía sigue como texto guía, y las preguntas de §18 siguen abiertas con sus supuestos. Se ejecutó el mismo día. Los desvíos están en `docs/DECISIONS.md` (C01 a C13): entre otros, Reportes queda con cuatro pestañas porque la imagen de "Leche por Lote" del sitio anterior es idéntica a la de "Producción Leche" (C02) |
 | v2 | **La web no nombra sistemas ni empresas de terceros** (pedido del usuario: "nos podría meter en problemas"). Se quitan DairyPlan, Excel y Power BI de los textos, y de la captura "Producción Leche" se borran "WATTS" y "DP". Donde se nombraban, el mensaje pasa a ser que **CampoData se adapta a la tecnología y la maquinaria que tiene cada predio** (§0.13). Los textos nuevos de esta versión quedan confirmados (DECISIONS D21) |
+| v3 | **Se elimina el alcance de predios ganaderos**: la landing es solo para predios lecheros y asesores (DECISIONS D22). Sin tarjeta "Ganaderos" ni opción "Ganadero" en el formulario; el título del banner y el pie hablan de lechería. Donde la spec habla de ganaderos (§1.1, §2, §6, P1, P2, P16), manda esta versión |
+| v4 | La spec 04 reemplaza la ilustración del banner y las capturas de Reportes por pantallas del sistema con datos de demostración, quita las cifras del banner y corrige los textos que prometían más de lo que la app hace (DECISIONS D23 y D24). Donde esta spec dice otra cosa sobre el banner (§6.1), Reportes (§6.4), las imágenes (§11) o esos textos, manda la spec 04 |
 
 ---
 

@@ -38,7 +38,6 @@ html {
 /* Colores por perfil y por beneficio: el ícono, el borde al pasar el mouse y el foco de luz. */
 .cd-perfil-lecheria,
 .cd-color-cielo { --cd-color: var(--wp--preset--color--cielo); }
-.cd-perfil-ganadero,
 .cd-color-brote { --cd-color: var(--wp--preset--color--brote); }
 .cd-perfil-asesor,
 .cd-color-acento { --cd-color: var(--wp--preset--color--acento); }
@@ -537,39 +536,6 @@ html {
 	max-width: 36rem;
 }
 
-.cd-cifras {
-	margin-top: var(--wp--preset--spacing--60);
-}
-
-.cd-cifra {
-	padding: 0 1.5rem;
-	border-left: 1px solid color-mix(in srgb, var(--wp--preset--color--base) 15%, transparent);
-}
-
-.cd-cifra:first-child {
-	padding-left: 0;
-	border-left: 0;
-}
-
-.cd-cifra p {
-	margin: 0;
-}
-
-.cd-cifra-numero {
-	color: var(--wp--preset--color--base);
-	font-family: var(--wp--preset--font-family--titulos);
-	font-size: var(--wp--preset--font-size--x-large);
-	font-variant-numeric: tabular-nums;
-	font-weight: 700;
-	letter-spacing: -0.02em;
-	line-height: 1;
-}
-
-.cd-cifra-rotulo {
-	max-width: 11rem;
-	line-height: 1.35;
-}
-
 .cd-panel {
 	position: relative;
 	max-width: 560px;
@@ -578,17 +544,110 @@ html {
 	transition: transform 0.4s ease-out;
 }
 
-.cd-panel-imagen {
+/* Pantallas del sistema (spec 04): la del banner en un marco de aplicación, con el celular encima. */
+.cd-pantalla {
+	position: relative;
 	margin: 0;
+	overflow: hidden;
+	padding-top: 28px;
+	border-radius: var(--wp--custom--radio--tarjeta);
+	background: var(--wp--preset--color--noche);
+	box-shadow: var(--cd-sombra-honda), 0 0 0 1px var(--cd-linea-clara);
 }
 
-.cd-panel-imagen img {
+.cd-pantalla::before {
+	content: "";
+	position: absolute;
+	top: 10px;
+	left: 14px;
+	width: 44px;
+	height: 10px;
+	background:
+		radial-gradient(circle 5px at 5px 5px, var(--wp--preset--color--acento) 95%, transparent),
+		radial-gradient(circle 5px at 22px 5px, var(--wp--preset--color--brote) 95%, transparent),
+		radial-gradient(circle 5px at 39px 5px, var(--wp--preset--color--cielo) 95%, transparent);
+}
+
+.cd-pantalla img,
+.cd-telefono img {
 	display: block;
 	width: 100%;
 	height: auto;
-	aspect-ratio: 5 / 4;
+}
+
+.cd-pantalla img {
+	aspect-ratio: 1118 / 679;
+}
+
+.cd-telefono {
+	margin: 0;
+	overflow: hidden;
+	border: 5px solid var(--wp--preset--color--noche);
+	border-radius: 26px;
+	background: var(--wp--preset--color--noche);
+	box-shadow: var(--cd-sombra-honda), 0 0 0 1px var(--cd-linea-clara);
+}
+
+.cd-telefono img {
+	aspect-ratio: 390 / 659;
+}
+
+.cd-banner-telefono {
+	position: absolute;
+	right: -6%;
+	bottom: -8%;
+	z-index: 2;
+	width: 30%;
+}
+
+/* Capturas en una tarjeta o en una sección: borde suave, sombra y su pie debajo. */
+.cd-marco {
+	margin: 0;
+}
+
+.cd-marco img {
+	display: block;
+	/* Nunca más grande que el archivo: un recorte chico no se ve borroso en una columna ancha. */
+	width: auto;
+	max-width: 100%;
+	height: auto;
+	border: 1px solid var(--wp--preset--color--borde);
 	border-radius: var(--wp--custom--radio--tarjeta);
-	box-shadow: var(--cd-sombra-honda), 0 0 0 1px var(--cd-velo-claro);
+	background: var(--wp--preset--color--base);
+	box-shadow: var(--wp--custom--brillo--marino);
+}
+
+.is-style-seccion-noche .cd-marco img {
+	border-color: var(--cd-linea-clara);
+}
+
+:is(.cd-marco, .cd-pantalla-reporte) .wp-element-caption {
+	margin: var(--wp--preset--spacing--20) 0 0;
+	color: var(--wp--preset--color--secundario);
+	font-size: var(--wp--preset--font-size--small);
+	text-align: left;
+}
+
+.is-style-seccion-noche :is(.cd-marco, .cd-pantalla-reporte) .wp-element-caption {
+	color: var(--wp--preset--color--bruma);
+}
+
+/* En las tarjetas de Para quién, la imagen va al pie, junto al enlace, a la misma altura en las dos. */
+.cd-perfil .cd-marco {
+	margin-top: auto !important;
+}
+
+.cd-perfil .cd-marco + .cd-quiero-demo {
+	margin-top: 0 !important;
+}
+
+.cd-ejemplo-accion h3 {
+	margin: 0;
+}
+
+.cd-adaptacion {
+	max-width: 420px;
+	margin: var(--wp--preset--spacing--50) auto 0;
 }
 
 .cd-chip {
@@ -672,12 +731,9 @@ html {
 		right: 0;
 	}
 
-	.cd-cifra {
-		padding: 0 0.9rem;
-	}
-
-	.cd-cifra-numero {
-		font-size: var(--wp--preset--font-size--large);
+	.cd-banner-telefono {
+		right: -2%;
+		width: 34%;
 	}
 }
 
@@ -893,22 +949,22 @@ html {
 	padding: 1.25rem;
 }
 
-.cd-captura {
-	max-width: 1100px;
+.cd-pantalla-reporte {
+	max-width: 1118px;
 	margin: 0 auto;
 }
 
-.cd-captura img {
+.cd-pantalla-reporte img {
 	display: block;
 	width: 100%;
 	height: auto;
-	aspect-ratio: 1100 / 627;
+	aspect-ratio: 1118 / 679;
 	border-radius: 10px;
 	background: var(--wp--preset--color--base);
 }
 
 .cd-leyenda {
-	max-width: 1100px;
+	max-width: 1118px;
 	margin: 1rem auto 0;
 	padding: 0.85rem 1.1rem;
 	border: 1px solid var(--cd-linea-clara);
@@ -918,6 +974,18 @@ html {
 
 .cd-leyenda strong {
 	color: var(--wp--preset--color--base);
+}
+
+/* Pestañas con recortes: dos lado a lado (Ensayos) o uno centrado (Equipo). */
+.cd-panel-doble {
+	align-items: start;
+	max-width: 1118px;
+	margin-inline: auto;
+}
+
+.cd-panel-equipo {
+	max-width: 950px;
+	margin-inline: auto;
 }
 
 .cd-reportes-accion {
@@ -1356,8 +1424,7 @@ button.wp-element-button::after {
 }
 
 /* Fuera de la vista o con la pestaña oculta, lo que se repite se pausa (y el campo de píxeles no se pinta). */
-.cd-fuera::before,
-.cd-fuera .cd-panel-imagen img {
+.cd-fuera::before {
 	visibility: hidden;
 }
 

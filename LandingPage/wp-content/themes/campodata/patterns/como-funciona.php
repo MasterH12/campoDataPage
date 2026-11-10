@@ -60,7 +60,7 @@
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph -->
-			<p>CampoData limpia, organiza y cruza la información automáticamente. Producción, alimentación e inventario, todo unificado.</p>
+			<p>Ordenamos y cruzamos la información: producción, alimentación, calidad y reproducción, en un solo lugar.</p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:group -->
@@ -76,11 +76,11 @@
 			<!-- /wp:paragraph -->
 
 			<!-- wp:heading {"level":3} -->
-			<h3 class="wp-block-heading">Recomendaciones prácticas</h3>
+			<h3 class="wp-block-heading">Te avisamos qué mirar</h3>
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph -->
-			<p>"Baja 2 kg de soya al Lote C hoy." Mensajes directos y accionables, no jerga estadística que nadie entiende.</p>
+			<p>Cada mañana, lo que se salió de lo normal: sobras en el comedero, mezclas imprecisas, recetas incompletas. En palabras simples, no en jerga estadística.</p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:group -->
@@ -100,10 +100,22 @@
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph -->
-			<p>Dashboards visuales claros para ti y tu equipo. Seguimiento diario, semanal y mensual. Las mejoras se ven rápido.</p>
+			<p>Dashboards visuales claros para ti y tu equipo. Seguimiento diario, semanal y mensual.</p>
 			<!-- /wp:paragraph -->
 		</div>
 		<!-- /wp:group -->
+	</div>
+	<!-- /wp:group -->
+
+	<!-- wp:group {"align":"wide","className":"cd-ejemplo-accion cd-escalonado","style":{"spacing":{"margin":{"top":"var:preset|spacing|70"},"blockGap":"var:preset|spacing|40"}},"layout":{"type":"constrained","contentSize":"1004px"}} -->
+	<div class="wp-block-group alignwide cd-ejemplo-accion cd-escalonado" style="margin-top:var(--wp--preset--spacing--70)">
+		<!-- wp:heading {"level":3} -->
+		<h3 class="wp-block-heading">Así se ve el paso 3 en el sistema</h3>
+		<!-- /wp:heading -->
+
+		<!-- wp:image {"lightbox":{"enabled":true},"sizeSlug":"full","linkDestination":"none","className":"cd-marco"} -->
+		<figure class="wp-block-image size-full cd-marco"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/sistema/accion-que-mirar-hoy.webp' ) ); ?>" alt="“Qué mirar hoy”: un aviso por sobras de 6 % en el comedero y otro por una mezcla imprecisa"/><figcaption class="wp-element-caption">Cada mañana, los avisos con el lote y el motivo: aquí, sobras de más en la ordeña y una mezcla imprecisa en las secas.</figcaption></figure>
+		<!-- /wp:image -->
 	</div>
 	<!-- /wp:group -->
 </section>

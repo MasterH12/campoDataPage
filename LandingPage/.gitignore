@@ -14,3 +14,6 @@
 # Archivos de WordPress que no son código propio
 /wp-content/uploads/
 /wp-content/plugins/
+
+# Imágenes del sistema de CampoData: solo locales, no se suben (ver README)
+/imagenes-sistema/

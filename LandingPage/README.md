@@ -58,6 +58,7 @@ El trabajo avanza `dev` → `testing` → `prod`. Un arreglo urgente se hace en 
 bin/                          scripts: wp, setup, reset y check
 config/plugins.txt            plugins de producción, con versión fija
 config/plugins-dev.txt        plugins solo para el entorno local
+imagenes-sistema/             imágenes del sistema, solo locales (ignorada en git: no se sube)
 config/contacto-inicial.json  datos de contacto con que bin/setup crea la opción (solo la primera vez)
 docs/DECISIONS.md             decisiones del proyecto
 docs/marca/                   el logo original (JPG) que entregó el cliente, de referencia
@@ -68,7 +69,7 @@ wp-content/themes/campodata/  tema de bloques: todo lo visual
 ├── templates/, parts/        plantillas, encabezado y pie
 ├── patterns/                 landing.php y una sección por archivo
 ├── assets/fonts/             Sora y DM Sans (woff2) con sus licencias OFL
-├── assets/images/            marca/ (emblema), ilustraciones/ (píxeles y panel), iconos/ y reportes/
+├── assets/images/            marca/ (emblema), ilustraciones/ (píxeles), iconos/ y sistema/ (pantallas del sistema)
 ├── assets/css/               sitio.css (todo el CSS propio) y editor.css (ajustes del editor)
 ├── assets/js/movimiento.js   el módulo de movimiento y el formulario de WhatsApp
 ├── inc/setup.php             patrones, estilos de bloque con CSS y el año del pie
@@ -107,15 +108,15 @@ Es una sola página con siete secciones. `patterns/landing.php` las ordena y cad
 | 1 | Banner | `#inicio` | `campodata/banner` | Noche con brillo, retícula y campo de píxeles |
 | 2 | Para quién | `#para-quien` | `campodata/para-quien` | Blanco |
 | 3 | Cómo funciona | `#como` | `campodata/como-funciona` | Rocío |
-| 4 | Reportes reales | `#reportes` | `campodata/reportes` | Noche con brillo |
+| 4 | Reportes (el sistema por dentro) | `#reportes` | `campodata/reportes` | Noche con brillo |
 | 5 | Beneficios | `#beneficios` | `campodata/beneficios` | Blanco |
 | 6 | Por qué CampoData | `#porque` | `campodata/por-que` | Rocío |
 | 7 | Solicitar demo | `#demo` | `campodata/demo` | Degradado del surco al marino |
 
 - **Reordenar, agregar o quitar una sección:** edita la lista de `patterns/landing.php`. Una sección nueva es un archivo en `patterns/` con `Categories: campodata`, un `group` con `tagName` `section`, su ancla, su estilo de sección y una ceja (`<strong>NN</strong>Nombre` con el estilo `ceja`). Si cambia el orden de las anclas, actualiza `ANCLAS` en `bin/check`; si la sección va en el menú, agrega el enlace en `parts/header.html` y mide el encabezado entre 320 y 1500px (hoy el menú pasa al botón móvil bajo 861px).
-- **Reemplazar una captura de Reportes:** revisa antes que no muestre nombres de terceros, y guárdala como WebP en `assets/images/reportes/` con el mismo nombre (1100 × 627 o el doble, 120 KB como máximo). `bin/check` falla si pesa más.
+- **Reemplazar una imagen del sistema:** ver [Imágenes del sistema](#imágenes-del-sistema).
 - **Sin terceros:** la web no nombra sistemas ni empresas ajenas (DairyPlan, Excel, Power BI, la planta que recibe la leche…), ni en textos ni dentro de las capturas. Para hablar de con qué trabaja CampoData, el mensaje es que se adapta a la tecnología y la maquinaria de cada predio (DECISIONS D21). `bin/check` falla si la portada nombra alguno; la lista está en el script.
-- **Textos guía:** lo que está entre corchetes es contenido pendiente del cliente (hoy, lo propio de ganaderos y asesores). `bin/check` avisa cuántos quedan.
+- **Textos guía:** lo que está entre corchetes es contenido pendiente del cliente (hoy, lo propio de los asesores). `bin/check` avisa cuántos quedan.
 
 ## Identidad
 
@@ -142,6 +143,37 @@ El degradado `marca` (espiga → brote → cielo) va solo en lo destacado del t�
 
 **Logo:** hoy el emblema es un recorte del JPG entregado (`assets/images/marca/emblema.webp`), y la palabra "CampoData" se escribe con Sora en dos colores. El SVG oficial y el ícono de la pestaña llegan en la spec 03.
 
+## Imágenes del sistema
+
+`imagenes-sistema/` (en la raíz de `LandingPage/`) guarda en cada máquina las imágenes del sistema de CampoData. Está en `.gitignore`: git no la ve y nada de lo que hay ahí se sube. Quien clone el repo la crea vacía con `mkdir imagenes-sistema`. Lo que se use en la web se pasa, revisado, a `wp-content/themes/campodata/assets/images/sistema/`, que sí se versiona y viaja con el tema al desplegar (spec 04).
+
+Hoy la landing usa catorce, todas del **Campo Demostración** (datos ficticios). **Cada una muestra lo mismo que dice el texto que acompaña**; una tarjeta o un paso sin una pantalla que lo muestre va sin imagen (DECISIONS D26).
+
+| Imagen de origen | Dónde va | Qué texto ilustra | Archivo en `assets/images/sistema/` |
+| --- | --- | --- | --- |
+| `1_escritorio_demo/03_produccion_hoy_que_mirar.jpg` | Banner (pantalla) | "qué mirar hoy, cuánto alimento te queda" | `banner-hoy.webp` |
+| `2_movil_demo/01_inicio.jpg` | Banner (celular) | El sistema en el celular | `banner-movil-inicio.webp` |
+| `3_recortes_para_landing/kpis_inicio.jpg` | Para quién · Dueños de lecherías | "Sabe cada mañana cómo viene tu predio" | `perfil-lecheria-inicio.webp` |
+| `3_recortes_para_landing/explicame_modal.jpg` | Para quién · Asesores | "Explícame: por qué cambió un número" | `perfil-asesor-explicame.webp` |
+| `3_recortes_para_landing/alertas_que_mirar_hoy.jpg` | Cómo funciona, bajo los pasos | Paso 3, "Te avisamos qué mirar" | `accion-que-mirar-hoy.webp` |
+| `1_escritorio_demo/06_produccion_curva_meta_y_dietas.jpg` | Reportes · Producción | La leyenda de la pestaña | `reportes-produccion.webp` |
+| `1_escritorio_demo/13_calidad_que_es_esto_contrato.jpg` | Reportes · Calidad | La leyenda de la pestaña | `reportes-calidad.webp` |
+| `3_recortes_para_landing/ensayo_tarjetas_resultado.jpg` | Reportes · Ensayos | La leyenda de la pestaña | `reportes-ensayo-resultados.webp` |
+| `3_recortes_para_landing/ensayo_indice_grafico.jpg` | Reportes · Ensayos | La leyenda de la pestaña | `reportes-ensayo-indice.webp` |
+| `3_recortes_para_landing/permisos_matriz.jpg` | Reportes · Equipo | La leyenda de la pestaña | `reportes-equipo-permisos.webp` |
+| `3_recortes_para_landing/cuanto_queda_alimento.jpg` | Beneficios · Ahorra tiempo | "Lo que antes tomaba horas de cálculos, ahora en segundos" | `beneficio-dias-de-alimento.webp` |
+| `3_recortes_para_landing/recetas_vs_habitual.jpg` (solo el recuadro "Sobras") | Beneficios · Optimización alimentaria | "Detecta dónde estás gastando más de lo necesario" | `beneficio-sobras.webp` |
+| `1_escritorio_demo/29_analisis_minimo_30_dias.jpg` (recortada) | Beneficios · Decisiones con respaldo | "La advertencia de cuándo el dato no alcanza para concluir" | `beneficio-dato-no-alcanza.webp` |
+| `3_recortes_para_landing/ciclo_reproductivo_selector.jpg` | Por qué CampoData | "Pensada para predios como el tuyo" | `adaptacion-ciclo-reproductivo.webp` |
+
+Sin imagen, porque ninguna pantalla muestra lo que dicen: los pasos 1, 2 y 4 de Cómo funciona y las tarjetas "Qué mirar hoy" (ya ilustrada en el paso 3), "Mejor gestión diaria" y "Mejora continua real" de Beneficios.
+
+**Para reemplazar una** (por ejemplo, con la recaptura a doble resolución de la spec 04, §9): guárdala como WebP en `assets/images/sistema/` **con el mismo nombre**, sin punteros del mouse, sin textos internos ("Demo", "Idea", "Simulado", "En construcción"), sin nombres de terceros y sin datos que un asesor note como poco realistas (ver `ANALISIS_LANDING.md`, §6). `bin/check` falla si pasa su peso máximo (90 KB las pantallas, 60 KB el celular y 50 KB los recortes). Las del banner van a calidad 82 y el resto a calidad 70. Los patrones no se tocan: un filtro del tema (`inc/imagenes.php`) toma el ancho y el alto del archivo y decide qué se carga diferido.
+
+Las imágenes, salvo las del banner, se amplían al hacer clic (la ampliación del bloque `image` del core).
+
+**Qué no se publica:** nada de `4_datos_reales_censurados/` ni de `5_referencia_interna_NO_publicar/`, ni las capturas de reportes del sitio anterior (podían identificar un predio; `bin/check` falla si vuelve `assets/images/reportes/`). Las imágenes que esperan una corrección de la demo antes de usarse están en la spec 04, §9.
+
 ## Movimiento
 
 Todo es una mejora progresiva: sin JS, o con movimiento reducido en el sistema, el contenido se ve completo y en su estado final. Un script en el `<head>` agrega `cd-con-js` y, solo si el sistema no pide movimiento reducido, `cd-movimiento` al `<html>`; si el módulo no carga en 3 segundos, la quita.
@@ -152,8 +184,8 @@ Todo es una mejora progresiva: sin JS, o con movimiento reducido en el sistema, 
 | M2 | El campo de píxeles del banner y de la demo (animación dentro de `pixeles.svg`) |
 | M3 | El degradado del título se desplaza en 8s |
 | M4 | El banner entra escalonado al cargar |
-| M5 | El panel se dibuja, flota y se inclina con el mouse hasta 6°; sus tarjetas aparecen después |
-| M6 | Las cifras cuentan desde cero |
+| M5 | La pantalla del banner y su celular flotan y se inclinan con el mouse hasta 6°; sus tarjetas aparecen después |
+| M6 | Los números con la clase `cd-contador` cuentan desde cero (hoy no hay ninguno: las cifras del banner se quitaron en la spec 04) |
 | M7 y M8 | Barra de progreso de lectura y cristal del encabezado al bajar |
 | M9 | La línea de Cómo funciona se dibuja, enciende los pasos y la recorre un "paquete de datos" |
 | M10 | Foco de luz que sigue al mouse en las tarjetas |
@@ -164,7 +196,7 @@ Todo es una mejora progresiva: sin JS, o con movimiento reducido en el sistema, 
 
 - Lo que se repite se pausa cuando su sección no está a la vista o la pestaña está oculta.
 - Para excluir un bloque, agrégale la clase `sin-movimiento` (Avanzado → Clases CSS adicionales).
-- **Probar con movimiento reducido:** en Chrome, DevTools → menú ⋮ → More tools → Rendering → "Emulate CSS media feature prefers-reduced-motion: reduce". **Probar sin JS:** DevTools → ⋮ → Run command → "Disable JavaScript". Sin JS, Reportes muestra las cuatro capturas una debajo de otra y el formulario no aparece.
+- **Probar con movimiento reducido:** en Chrome, DevTools → menú ⋮ → More tools → Rendering → "Emulate CSS media feature prefers-reduced-motion: reduce". **Probar sin JS:** DevTools → ⋮ → Run command → "Disable JavaScript". Sin JS, Reportes muestra sus dos pantallas una debajo de otra y el formulario no aparece.
 
 ## Datos de contacto
 

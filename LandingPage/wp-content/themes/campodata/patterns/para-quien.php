@@ -3,7 +3,7 @@
  * Title: Para quién
  * Slug: campodata/para-quien
  * Categories: campodata
- * Description: Una tarjeta por perfil (dueños de lecherías, ganaderos y asesores). Cada tarjeta lleva a la demo con su perfil ya elegido en el formulario.
+ * Description: Una tarjeta por perfil (dueños de lecherías y asesores). Cada tarjeta lleva a la demo con su perfil ya elegido en el formulario.
  *
  * @package CampoData\Tema
  */
@@ -20,10 +20,10 @@
 	<!-- /wp:heading -->
 
 	<!-- wp:paragraph {"align":"wide","className":"cd-intro","fontSize":"large"} -->
-	<p class="alignwide cd-intro has-large-font-size">Ya sea que administres tu propio predio o asesores a varios, CampoData ordena tus datos y te dice qué hacer con ellos.</p>
+	<p class="alignwide cd-intro has-large-font-size">Ya sea que administres tu propio predio o asesores a varios, CampoData ordena tus datos y te muestra, en simple, qué mirar.</p>
 	<!-- /wp:paragraph -->
 
-	<!-- wp:group {"align":"wide","className":"cd-perfiles cd-escalonado","style":{"spacing":{"blockGap":"var:preset|spacing|40","margin":{"top":"var:preset|spacing|60"}}},"layout":{"type":"grid","columnCount":3,"minimumColumnWidth":"17rem"}} -->
+	<!-- wp:group {"align":"wide","className":"cd-perfiles cd-escalonado","style":{"spacing":{"blockGap":"var:preset|spacing|40","margin":{"top":"var:preset|spacing|60"}}},"layout":{"type":"grid","columnCount":2,"minimumColumnWidth":"17rem"}} -->
 	<div class="wp-block-group alignwide cd-perfiles cd-escalonado" style="margin-top:var(--wp--preset--spacing--60)">
 		<!-- wp:group {"className":"is-style-tarjeta cd-tarjeta cd-perfil cd-perfil-lecheria","style":{"spacing":{"blockGap":"var:preset|spacing|30"}},"layout":{"type":"flex","orientation":"vertical","flexWrap":"nowrap"}} -->
 		<div class="wp-block-group is-style-tarjeta cd-tarjeta cd-perfil cd-perfil-lecheria">
@@ -41,11 +41,11 @@
 
 			<!-- wp:list {"className":"is-style-lista-check"} -->
 			<ul class="wp-block-list is-style-lista-check"><!-- wp:list-item -->
-				<li>Producción diaria por turno y por lote.</li>
+				<li>Producción diaria contra tu meta, con cada cambio de dieta.</li>
 				<!-- /wp:list-item -->
 
 				<!-- wp:list-item -->
-				<li>Dónde se va el gasto en soya, maíz o concentrado.</li>
+				<li>Cuántos días de alimento te quedan y cuándo pedir.</li>
 				<!-- /wp:list-item -->
 
 				<!-- wp:list-item -->
@@ -53,39 +53,9 @@
 				<!-- /wp:list-item --></ul>
 			<!-- /wp:list -->
 
-			<!-- wp:paragraph {"className":"cd-quiero-demo"} -->
-			<p class="cd-quiero-demo"><a href="/#demo">Quiero una demo →</a></p>
-			<!-- /wp:paragraph -->
-		</div>
-		<!-- /wp:group -->
-
-		<!-- wp:group {"className":"is-style-tarjeta cd-tarjeta cd-perfil cd-perfil-ganadero","style":{"spacing":{"blockGap":"var:preset|spacing|30"}},"layout":{"type":"flex","orientation":"vertical","flexWrap":"nowrap"}} -->
-		<div class="wp-block-group is-style-tarjeta cd-tarjeta cd-perfil cd-perfil-ganadero">
-			<!-- wp:image {"sizeSlug":"full","linkDestination":"none","className":"cd-icono"} -->
-			<figure class="wp-block-image size-full cd-icono"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/iconos/vaca.svg' ) ); ?>" alt=""/></figure>
+			<!-- wp:image {"lightbox":{"enabled":true},"sizeSlug":"full","linkDestination":"none","className":"cd-marco"} -->
+			<figure class="wp-block-image size-full cd-marco"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/sistema/perfil-lecheria-inicio.webp' ) ); ?>" alt="Resumen de una lechería en CampoData: litros, sólidos, animales en ordeña, preñez, ingreso por la leche, gasto y margen"/><figcaption class="wp-element-caption">Litros, calidad, rebaño, reproducción y margen en una pantalla</figcaption></figure>
 			<!-- /wp:image -->
-
-			<!-- wp:heading {"level":3} -->
-			<h3 class="wp-block-heading">Ganaderos</h3>
-			<!-- /wp:heading -->
-
-			<!-- wp:paragraph {"textColor":"contraste"} -->
-			<p class="has-contraste-color has-text-color">[Qué gana un predio ganadero con CampoData, en una frase. Confirmar qué datos de ganadería de carne se usan]</p>
-			<!-- /wp:paragraph -->
-
-			<!-- wp:list {"className":"is-style-lista-check"} -->
-			<ul class="wp-block-list is-style-lista-check"><!-- wp:list-item -->
-				<li>Inventario al día: salidas, muertes y ventas con causa y lote.</li>
-				<!-- /wp:list-item -->
-
-				<!-- wp:list-item -->
-				<li>[Un dato propio de la ganadería de carne que CampoData ordene: por ejemplo, pesajes o ganancia diaria de peso. Confirmar]</li>
-				<!-- /wp:list-item -->
-
-				<!-- wp:list-item -->
-				<li>Decisiones con datos reales de tu propio predio.</li>
-				<!-- /wp:list-item --></ul>
-			<!-- /wp:list -->
 
 			<!-- wp:paragraph {"className":"cd-quiero-demo"} -->
 			<p class="cd-quiero-demo"><a href="/#demo">Quiero una demo →</a></p>
@@ -109,17 +79,21 @@
 
 			<!-- wp:list {"className":"is-style-lista-check"} -->
 			<ul class="wp-block-list is-style-lista-check"><!-- wp:list-item -->
-				<li>Reportes claros para compartir con el productor y su equipo.</li>
+				<li>Producción, dieta y calidad en la misma línea de tiempo.</li>
 				<!-- /wp:list-item -->
 
 				<!-- wp:list-item -->
-				<li>Recomendaciones accionables, no jerga estadística.</li>
+				<li>Explícame: por qué cambió un número, en palabras simples.</li>
 				<!-- /wp:list-item -->
 
 				<!-- wp:list-item -->
-				<li>[Si CampoData permite ver varios predios desde una misma cuenta, decirlo aquí. Confirmar]</li>
+				<li>Todos tus predios desde una misma cuenta.</li>
 				<!-- /wp:list-item --></ul>
 			<!-- /wp:list -->
+
+			<!-- wp:image {"lightbox":{"enabled":true},"sizeSlug":"full","linkDestination":"none","className":"cd-marco"} -->
+			<figure class="wp-block-image size-full cd-marco"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/sistema/perfil-asesor-explicame.webp' ) ); ?>" alt="“Explícame” en CampoData: los kilos bajaron 10 % y la variación se explica por el rebaño, con dos gráficos"/><figcaption class="wp-element-caption">Explícame: por qué cambió un número, en palabras simples</figcaption></figure>
+			<!-- /wp:image -->
 
 			<!-- wp:paragraph {"className":"cd-quiero-demo"} -->
 			<p class="cd-quiero-demo"><a href="/#demo">Quiero una demo →</a></p>

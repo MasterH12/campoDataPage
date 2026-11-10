@@ -3,7 +3,7 @@
  * Title: Banner
  * Slug: campodata/banner
  * Categories: campodata
- * Description: Banner oscuro con el campo de píxeles animado: el título, los botones, las cifras que cuentan y el panel ilustrado que flota y se inclina con el mouse.
+ * Description: Banner oscuro con el campo de píxeles animado: el título, los botones y una pantalla del sistema con el celular encima, que flota y se inclina con el mouse.
  *
  * @package CampoData\Tema
  */
@@ -20,11 +20,11 @@
 			<!-- /wp:paragraph -->
 
 			<!-- wp:heading {"level":1,"className":"is-style-titulo-marca"} -->
-			<h1 class="wp-block-heading is-style-titulo-marca">Gestión <strong>simple y efectiva</strong> para tu lechería o predio ganadero</h1>
+			<h1 class="wp-block-heading is-style-titulo-marca">Gestión <strong>simple y efectiva</strong> para tu predio lechero</h1>
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph {"fontSize":"large"} -->
-			<p class="has-large-font-size">Nos adaptamos a la tecnología y la maquinaria que ya tiene tu predio. Ordenamos sus datos y te entregamos recomendaciones prácticas y claras para mejorar alimentación, producción y eficiencia diaria.</p>
+			<p class="has-large-font-size">Nos adaptamos a la tecnología y la maquinaria que ya tiene tu predio. Ordenamos sus datos y te mostramos, en simple, qué mirar hoy, cuánto alimento te queda y cómo va la producción contra tu meta.</p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:buttons -->
@@ -34,50 +34,11 @@
 				<!-- /wp:button -->
 
 				<!-- wp:button {"className":"is-style-outline"} -->
-				<div class="wp-block-button is-style-outline"><a class="wp-block-button__link wp-element-button" href="/#reportes">Ver reportes reales</a></div>
+				<div class="wp-block-button is-style-outline"><a class="wp-block-button__link wp-element-button" href="/#reportes">Ver el sistema</a></div>
 				<!-- /wp:button -->
 			</div>
 			<!-- /wp:buttons -->
 
-			<!-- wp:group {"className":"cd-cifras","style":{"spacing":{"blockGap":"0"}},"layout":{"type":"flex","flexWrap":"nowrap","verticalAlignment":"top"}} -->
-			<div class="wp-block-group cd-cifras">
-				<!-- wp:group {"className":"cd-cifra","style":{"spacing":{"blockGap":"var:preset|spacing|20"}},"layout":{"type":"flex","orientation":"vertical"}} -->
-				<div class="wp-block-group cd-cifra">
-					<!-- wp:paragraph {"className":"cd-cifra-numero cd-contador"} -->
-					<p class="cd-cifra-numero cd-contador">+12%</p>
-					<!-- /wp:paragraph -->
-
-					<!-- wp:paragraph {"className":"cd-cifra-rotulo","fontSize":"small"} -->
-					<p class="cd-cifra-rotulo has-small-font-size">Mejora promedio en producción</p>
-					<!-- /wp:paragraph -->
-				</div>
-				<!-- /wp:group -->
-
-				<!-- wp:group {"className":"cd-cifra","style":{"spacing":{"blockGap":"var:preset|spacing|20"}},"layout":{"type":"flex","orientation":"vertical"}} -->
-				<div class="wp-block-group cd-cifra">
-					<!-- wp:paragraph {"className":"cd-cifra-numero cd-contador"} -->
-					<p class="cd-cifra-numero cd-contador">10 hrs</p>
-					<!-- /wp:paragraph -->
-
-					<!-- wp:paragraph {"className":"cd-cifra-rotulo","fontSize":"small"} -->
-					<p class="cd-cifra-rotulo has-small-font-size">Ahorradas por semana</p>
-					<!-- /wp:paragraph -->
-				</div>
-				<!-- /wp:group -->
-
-				<!-- wp:group {"className":"cd-cifra","style":{"spacing":{"blockGap":"var:preset|spacing|20"}},"layout":{"type":"flex","orientation":"vertical"}} -->
-				<div class="wp-block-group cd-cifra">
-					<!-- wp:paragraph {"className":"cd-cifra-numero cd-contador"} -->
-					<p class="cd-cifra-numero cd-contador">100%</p>
-					<!-- /wp:paragraph -->
-
-					<!-- wp:paragraph {"className":"cd-cifra-rotulo","fontSize":"small"} -->
-					<p class="cd-cifra-rotulo has-small-font-size">Adaptable al predio</p>
-					<!-- /wp:paragraph -->
-				</div>
-				<!-- /wp:group -->
-			</div>
-			<!-- /wp:group -->
 		</div>
 		<!-- /wp:column -->
 
@@ -85,8 +46,12 @@
 		<div class="wp-block-column is-vertically-aligned-center cd-banner-panel" style="flex-basis:44%">
 			<!-- wp:group {"className":"cd-panel","layout":{"type":"default"}} -->
 			<div class="wp-block-group cd-panel">
-				<!-- wp:image {"sizeSlug":"full","linkDestination":"none","className":"cd-panel-imagen"} -->
-				<figure class="wp-block-image size-full cd-panel-imagen"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/ilustraciones/panel.svg' ) ); ?>" alt="Panel de CampoData: un gráfico de producción diaria, tres indicadores y barras por lote"/></figure>
+				<!-- wp:image {"sizeSlug":"full","linkDestination":"none","className":"cd-pantalla cd-sin-diferir cd-prioridad"} -->
+				<figure class="wp-block-image size-full cd-pantalla cd-sin-diferir cd-prioridad"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/sistema/banner-hoy.webp' ) ); ?>" alt="Pantalla Hoy de Producción en CampoData: dos avisos de qué mirar hoy y los días de alimento que quedan"/></figure>
+				<!-- /wp:image -->
+
+				<!-- wp:image {"sizeSlug":"full","linkDestination":"none","className":"cd-telefono cd-banner-telefono cd-sin-diferir"} -->
+				<figure class="wp-block-image size-full cd-telefono cd-banner-telefono cd-sin-diferir"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/sistema/banner-movil-inicio.webp' ) ); ?>" alt="Inicio de CampoData en el celular: litros totales, litros por cabeza y calidad de la leche"/></figure>
 				<!-- /wp:image -->
 
 				<!-- wp:paragraph {"className":"cd-chip cd-chip-fuentes","fontSize":"x-small"} -->
@@ -96,11 +61,11 @@
 				<!-- wp:group {"className":"cd-chip cd-chip-recomendacion","style":{"spacing":{"blockGap":"var:preset|spacing|20"}},"layout":{"type":"flex","orientation":"vertical"}} -->
 				<div class="wp-block-group cd-chip cd-chip-recomendacion">
 					<!-- wp:paragraph {"className":"cd-chip-rotulo","fontSize":"x-small"} -->
-					<p class="cd-chip-rotulo has-x-small-font-size">Recomendación de hoy</p>
+					<p class="cd-chip-rotulo has-x-small-font-size">Qué mirar hoy</p>
 					<!-- /wp:paragraph -->
 
 					<!-- wp:paragraph {"className":"cd-chip-texto"} -->
-					<p class="cd-chip-texto">Baja 2 kg de soya al Lote C hoy.</p>
+					<p class="cd-chip-texto">Ordeña primavera-verano: sobró 6 % en el comedero (lo habitual es 3 %).</p>
 					<!-- /wp:paragraph -->
 				</div>
 				<!-- /wp:group -->

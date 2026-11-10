@@ -70,11 +70,20 @@ assets/fonts/sora-latin-wght-normal.woff2 40
 assets/fonts/dm-sans-latin-wght-normal.woff2 40
 assets/images/marca/emblema.webp 20
 assets/images/ilustraciones/pixeles.svg 8
-assets/images/ilustraciones/panel.svg 16
-assets/images/reportes/produccion-leche.webp 120
-assets/images/reportes/distribucion-animales.webp 120
-assets/images/reportes/resumen-diario.webp 120
-assets/images/reportes/inventario-animal.webp 120
+assets/images/sistema/banner-hoy.webp 90
+assets/images/sistema/banner-movil-inicio.webp 60
+assets/images/sistema/perfil-lecheria-inicio.webp 50
+assets/images/sistema/perfil-asesor-explicame.webp 50
+assets/images/sistema/accion-que-mirar-hoy.webp 50
+assets/images/sistema/reportes-produccion.webp 90
+assets/images/sistema/reportes-calidad.webp 90
+assets/images/sistema/reportes-ensayo-resultados.webp 50
+assets/images/sistema/reportes-ensayo-indice.webp 50
+assets/images/sistema/reportes-equipo-permisos.webp 50
+assets/images/sistema/beneficio-dias-de-alimento.webp 50
+assets/images/sistema/beneficio-sobras.webp 50
+assets/images/sistema/beneficio-dato-no-alcanza.webp 50
+assets/images/sistema/adaptacion-ciclo-reproductivo.webp 50
 RECURSOS
 )
 faltantes=""
@@ -88,7 +97,7 @@ while read -r archivo maximo; do
 	fi
 done <<<"$recursos"
 if [ -z "$faltantes" ]; then
-	ok "Las tipografías, el emblema, las ilustraciones y las capturas están en el tema"
+	ok "Las tipografías, el emblema, el campo de píxeles y las imágenes del sistema están en el tema"
 else
 	falla "Faltan en el tema:$faltantes"
 fi
@@ -96,6 +105,12 @@ if [ -z "$pesados" ]; then
 	ok "Ningún archivo del tema supera su peso máximo"
 else
 	falla "Archivos más pesados que su máximo:$pesados"
+fi
+# Las capturas de reportes anteriores podían identificar a un predio real (spec 04, §1).
+if [ -e "wp-content/themes/$TEMA/assets/images/reportes" ]; then
+	falla "Volvió assets/images/reportes/: esas capturas no se publican (spec 04)"
+else
+	ok "No están las capturas de reportes anteriores"
 fi
 
 echo "Plugins"
@@ -130,8 +145,9 @@ else
 	falla "La portada responde $codigo en vez de 200"
 fi
 # Recursos (scripts, estilos, imágenes, iframes) que no vienen del propio sitio.
-externos=$(grep -oE '<(script|img|iframe|source|video|audio|link)[^>]+(src|href)="[^"]+' "$html" \
-	| grep -oE '(src|href)="[^"]+' | sed -E 's/^(src|href)="//' \
+# Solo los atributos src y href de verdad: el lightbox del core trae data-wp-bind--src="state…".
+externos=$(grep -oE '<(script|img|iframe|source|video|audio|link)[^>]+[[:space:]](src|href)="[^"]+' "$html" \
+	| grep -oE '[[:space:]](src|href)="[^"]+' | sed -E 's/^[[:space:]](src|href)="//' \
 	| grep -vE "^($URL|/[^/]|#|data:)" | sort -u | paste -sd ' ' || true)
 externos="$externos$(grep -oE 'fonts\.googleapis\.com|fonts\.gstatic\.com|s\.w\.org' "$html" | sort -u | sed 's/^/ /' | paste -sd '' || true)"
 if [ -z "$externos" ]; then
@@ -201,7 +217,15 @@ if [ -z "$terceros" ]; then
 else
 	falla "La portada nombra sistemas de terceros: $terceros (ver D21 en docs/DECISIONS.md)"
 fi
-guias=$(LC_ALL=C.UTF-8 grep -oE '\[[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+[ :]' "$html" | wc -l)
+# Textos que prometían más de lo que la app hace, o datos que podían identificar un predio (spec 04, §7).
+de_mas=$(grep -oE 'Baja 2 kg de soya|\+12 ?%|~2\.000 vacas' "$html" | sort -u | paste -sd ',' || true)
+if [ -z "$de_mas" ]; then
+	ok "La portada no promete recomendaciones automáticas ni muestra cifras sin fuente"
+else
+	falla "La portada tiene textos que la spec 04 quitó: $de_mas"
+fi
+# Sin textos guía, grep devuelve 1 y, con pipefail, cortaría el script: se cuenta igual con || true.
+guias=$( (LC_ALL=C.UTF-8 grep -oE '\[[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+[ :]' "$html" || true) | wc -l)
 if [ "$guias" -gt 0 ]; then
 	aviso "Quedan $guias textos guía ([…]) en la portada: es contenido pendiente."
 fi

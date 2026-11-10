@@ -138,11 +138,11 @@ Este proyecto sigue `Clientes Web/FRAMEWORK-WORDPRESS.md`. Las decisiones D01 a 
 
 ### D16 · Sección nueva "Para quién"
 
-*2026-11-02 · spec 02*
+*2026-11-02 · spec 02; alcance reducido el mismo día (D22)*
 
-- **Contexto:** el sitio anterior hablaba solo a productores lecheros; el usuario quiere sumar a ganaderos y asesores.
-- **Decisión:** una tarjeta por perfil, justo después del banner. Lo que el sitio anterior ya decía se reutiliza; lo propio de la ganadería de carne y de los asesores queda como texto guía hasta que el cliente lo confirme. Cada tarjeta lleva al formulario con su perfil elegido.
-- **Alternativas descartadas:** un banner por perfil (triplica el contenido).
+- **Contexto:** el sitio anterior hablaba solo a productores lecheros; el usuario quiere sumar a los asesores.
+- **Decisión:** una tarjeta por perfil (dueños de lecherías y asesores), justo después del banner. Lo que el sitio anterior ya decía se reutiliza; lo propio de los asesores queda como texto guía hasta que el cliente lo confirme. Cada tarjeta lleva al formulario con su perfil elegido.
+- **Alternativas descartadas:** un banner por perfil.
 
 ### D17 · Reportes reales en pestañas del core, y banner sin foto
 
@@ -151,7 +151,7 @@ Este proyecto sigue `Clientes Web/FRAMEWORK-WORDPRESS.md`. Las decisiones D01 a 
 - **Decisión:** las capturas de Power BI del sitio anterior, pasadas a WebP, en el bloque `tabs` del core dentro de un marco de aplicación (estilo `ventana`). El banner no lleva foto: un panel ilustrado en SVG (sin números ni ejes con valores) muestra un gráfico y la recomendación "Baja 2 kg de soya al Lote C hoy.", que es del sitio anterior. No se usó la foto de banco del sitio anterior.
 - **Alternativas descartadas:** un panel de Power BI embebido (contenido de terceros); ilustraciones genéricas en vez de las capturas reales.
 
-*La web ya no nombra la herramienta de los reportes, y la captura "Producción Leche" se limpió de nombres de terceros: ver D21.*
+*La web ya no nombra la herramienta de los reportes, y la captura "Producción Leche" se limpió de nombres de terceros: ver D21. **Reemplazada por D23:** las capturas de reportes se retiraron porque podían identificar un predio real, y Reportes muestra ahora pantallas del sistema con datos de demostración.*
 
 ### D18 · Movimiento con CSS, SVG animados y un módulo JS propio
 
@@ -185,6 +185,68 @@ Este proyecto sigue `Clientes Web/FRAMEWORK-WORDPRESS.md`. Las decisiones D01 a 
   - **Contacto:** WhatsApp, LinkedIn e Instagram se mantienen: son canales para escribirle a CampoData, no sistemas con los que trabaja.
   - **Verificación:** `bin/check` falla si la portada nombra DairyPlan, Power BI, Excel o WATTS (la lista está en el script; "excelente" no cuenta).
 - **Alternativas descartadas:** decir "compatible con los principales sistemas del mercado" (sigue aludiendo a terceros y promete algo que no se puede verificar); quitar la captura "Producción Leche" (es la más clara de las cuatro); difuminar las palabras en vez de borrarlas (se nota la marca de la edición).
+
+### D22 · El alcance es solo predios lecheros y asesores
+
+*2026-11-02 · pedido del usuario después de la spec 02 (spec 02 v3)*
+
+- **Decisión:** se elimina el alcance de predios ganaderos (carne). Se quitó la tarjeta "Ganaderos" (Para quién queda en 2 columnas), la opción "Ganadero" del formulario y su CSS, y los textos pasaron a hablar de lechería: el título del banner ("…para tu predio lechero") y el pie ("predios lecheros").
+- **Alternativas descartadas:** dejar la tarjeta con textos guía (promete un servicio que no se ofrece).
+
+### D23 · Imágenes del sistema en la landing
+
+*2026-11-09 · spec 04 (versión 2, con el análisis de administración `ANALISIS_LANDING.md`)*
+
+- **Contexto:** el usuario dejó en `imagenes-sistema/` 73 capturas del sistema de CampoData, y administración las analizó: qué se puede publicar, qué muestra datos poco realistas y qué promete la landing que la app no hace. Las capturas de reportes de la landing (del sitio anterior) usaban un ejemplo de "~2.000 vacas", y el Campo A tiene 2.116 vacas en ordeña: el predio podía reconocerse.
+- **Decisión:**
+  - **Nueve imágenes del Campo Demostración** (datos ficticios), una por mensaje y sin repetir. La tabla de correspondencia está en el README ("Imágenes del sistema") y en la spec 04.
+  - **Dónde viven:** `assets/images/sistema/`, versionada y dentro del tema, así que viaja con él al desplegar. `imagenes-sistema/` sigue local e ignorada.
+  - **Retiradas:** `assets/images/reportes/` (las capturas del sitio anterior) y `assets/images/ilustraciones/panel.svg`. `bin/check` falla si vuelve la carpeta de reportes.
+  - **Formato:** WebP de calidad 82, a la medida de origen. Pesos finales: `banner-hoy` 39,8 KB · `banner-movil-inicio` 17,4 · `perfil-lecheria-inicio` 21,5 · `perfil-asesor-explicame` 30,5 · `accion-que-mirar-hoy` 9,6 · `accion-cuando-pedir` 13,4 · `reportes-produccion` 53,6 · `reportes-calidad` 51,2 · `adaptacion-ciclo-reproductivo` 18,8. En total, 256 KB.
+  - **Retoques sin inventar:** se borraron los punteros pintando con el color del fondo o copiando píxeles idénticos del propio sistema. En la pantalla de Calidad, el distintivo "2 de 9 análisis fuera del contrato" se copió de `12_calidad_rcs.jpg`, donde está igual y sin puntero. "Explícame" se recortó antes de la franja "DEMO · Simular datos nuevos". Cada retoque se revisó ampliado, contra el original.
+  - **Carga:** `inc/imagenes.php` toma el ancho y el alto de cada archivo (el core solo difiere la carga de imágenes que los traen), carga de inmediato las dos del banner (la pantalla con `fetchpriority="high"`) y difiere las demás.
+  - **Ampliar:** todas, salvo las del banner, con la ampliación del bloque `image` del core. Funciona con el teclado (Escape la cierra y el foco vuelve a la imagen).
+  - **Lo que espera una corrección de la demo** (hoja de carga, temporadas, ensayos, agenda, datos cruzados) queda listado en la spec 04, §9.
+- **Alternativas descartadas:** la Biblioteca de medios (el contenido no se reproduce con `bin/setup`, D05); las 17 imágenes de la spec 04 v1, varias con datos que un asesor detecta como poco realistas; usar las capturas censuradas de campos reales.
+
+### D24 · Los textos dicen lo que la app hace hoy
+
+*2026-11-09 · spec 04, §7*
+
+- **Contexto:** el análisis de administración (§1.3 y §5) detectó que la landing prometía recomendaciones automáticas ("Baja 2 kg de soya al Lote C hoy"), cifras sin fuente (+12 %, 10 h, 100 %) y procesos automáticos que la app todavía no tiene.
+- **Decisión:** los textos pasan a lo que la app sí hace: avisar qué mirar hoy, decir cuánto alimento queda y cuándo pedir, mostrar la producción contra la meta con los cambios de dieta, explicar la calidad según el contrato y explicar por qué cambió un número ("Explícame"). Se quitaron las cifras del banner. La tarjeta flotante del banner muestra una alerta real de la pantalla ("Ordeña primavera-verano: sobró 6 % en el comedero"). `bin/check` falla si vuelven "Baja 2 kg de soya", "+12 %" o "~2.000 vacas".
+- **Lo que se mantiene:** "Nos adaptamos a la tecnología y la maquinaria…" (D21, pedido del usuario), sin nombrar el programa que sugiere el análisis.
+- **Pendiente:** la demo "con los datos de tu propio predio" y los "14 días gratis" de Solicitar demo siguen sin cambios hasta que administración confirme si hoy se pueden ofrecer (spec 04, P9).
+- **Alternativas descartadas:** dejar los textos de la spec 02 junto a capturas reales que no los respaldan.
+
+### D25 · Más recortes del sistema, más comprimidos
+
+*La ubicación de las imágenes de Cómo funciona y de Beneficios fue reemplazada por D26.*
+
+*2026-11-09 · pedido del usuario después de la spec 04*
+
+- **Contexto:** el usuario pidió usar casi todos los recortes de `3_recortes_para_landing/` y comprimir más las imágenes, porque ocupaban demasiado espacio. Pidió dejar las dos del banner tal como están.
+- **Decisión:**
+  - **Se usan 12 de los 20 recortes** (antes, 5). Los nuevos son "cuánto queda" en Cómo funciona; en Reportes, dos pestañas nuevas, **Ensayos** (resultado e índice de litros) y **Equipo** (permisos por perfil); y en Beneficios, la meta de producción, la explicación del contrato y la curva contra la meta.
+  - **Quedan fuera 8**, por lo que señala el análisis de administración: `hoja_de_carga` y `recetas_vs_habitual` (sales minerales al 5 % de la ración), `temporada_otono` y `curvas_partos_servicios` (temporadas poco realistas), `agenda_tareas` ("cojas" en vez de "cojeras"), `pronostico_clima` (nombra la fuente del pronóstico), `ensayo_checklist` (el puntero tapa el punto inconsistente del ensayo) y `rebano_salidas_grafico` (gráfico débil). Se suman cuando la demo se corrija (spec 04, §9).
+  - **Compresión:** todo a WebP de calidad 70, salvo las dos del banner, que quedan idénticas byte a byte (calidad 82). Bajar de 82 a 74 ahorraba 23 %; bajar más casi no ahorraba. Máximo por recorte: 50 KB. Las 16 imágenes pesan 277 KB (antes, 9 imágenes pesaban 256 KB). La portada pesa 278 KB en la primera pantalla y 388 KB completa.
+  - **Retoques nuevos:** el puntero de "cuánto queda" (sobre el borde entre dos tarjetas: se repitió una fila limpia de arriba) y el del índice del ensayo (fondo plano). `permisos_matriz` se recortó antes de su nota interna ("Las casillas tenues se guardan pero hoy no habilitan nada…"), y con eso también salió el puntero.
+  - **La pestaña Equipo** dice que cada persona tiene permisos por módulo según su perfil, que es lo que la app hace hoy. No promete vistas por rol, que el análisis indica que todavía no están configuradas.
+- **Alternativas descartadas:** usar los 20 recortes (8 muestran datos o textos que el análisis pide corregir antes); calidad 62, que ahorraba solo 26 KB más y ensucia el texto.
+
+### D26 · Cada imagen muestra lo que dice su texto
+
+*2026-11-09 · corrección pedida por el usuario sobre D25*
+
+- **Contexto:** el usuario notó que varias imágenes no tenían que ver con el texto que acompañaban, sobre todo en Beneficios. Se habían repartido por sección y no por lo que dice cada tarjeta. Por ejemplo, "Mejor gestión diaria" (en qué lote enfocarte) llevaba la meta de producción, y "Decisiones con respaldo" (cuándo el dato no alcanza) llevaba la explicación del contrato de calidad. En Cómo funciona, "cuánto queda" y "cuándo pedir" no correspondían a ninguno de los cuatro pasos.
+- **Decisión:** una imagen va solo donde muestra exactamente lo que dice su texto. Una tarjeta o un paso sin una pantalla que lo muestre va sin imagen.
+  - **Beneficios:** "Ahorra tiempo" lleva "cuánto queda" (los días calculados solos); "Optimización alimentaria", el recuadro "Sobras 6 %, lo habitual 3 %" de `recetas_vs_habitual`, sin la barra de la receta, que muestra las sales minerales al 5 %; y "Decisiones con respaldo", la pantalla de datos cruzados que dice "con 9 días medidos a la vez no alcanza para decirlo (hacen falta 30)" (`29_analisis_minimo_30_dias`, recortada sin el menú lateral ni el puntero). Se cambió el orden de las tarjetas para que las dos imágenes anchas caigan en las dos tarjetas anchas.
+  - **Cómo funciona:** solo "Qué mirar hoy", con el título "Así se ve el paso 3 en el sistema".
+  - **Por qué CampoData:** el pie del selector del ciclo dice lo que muestra la propia pantalla (CampoData arma el calendario y mide contra tus metas).
+  - **Se retiraron** `cuanto_queda` de Cómo funciona, y `compras_cuando_pedir`, `meta_produccion`, `curva_produccion_meta` y `explicacion_contrato_planta`: no calzaban con ningún texto libre, y las tres últimas repiten lo que ya muestran las pestañas Producción y Calidad de Reportes.
+  - Las imágenes chicas se muestran como máximo a su tamaño real, para que no se vean borrosas.
+- **Resultado:** 14 imágenes, 254 KB en total. La portada pesa 278 KB en la primera pantalla y 364 KB completa.
+- **Alternativas descartadas:** poner una imagen en cada tarjeta, aunque no corresponda; reescribir los textos de las tarjetas para que calcen con las imágenes (los textos los decide el cliente).
 
 ---
 
@@ -310,3 +372,71 @@ Sin cambios: la implementación sigue la spec 01 (con la corrección de D13 ya i
 | R10 | La inclinación del panel deja el texto borroso | No se observó en Chrome sin cabeza. Se verificó que el ángulo no pasa de 6° |
 | R11 | El foco de luz choca con los fondos | No pasó: `::before` con `z-index: -1` en una tarjeta con `isolation: isolate` |
 | R12 | Las animaciones que se repiten gastan batería | No se midió en un teléfono. Se pausan fuera de la vista (C10) |
+
+---
+
+## Cambios respecto de la spec 04
+
+### C14 · Se empezó con cambios sin commit
+
+- **Qué decía la spec:** §0.2: si hay cambios sin commit de trabajos anteriores, avisar antes de seguir.
+- **Qué se hizo:** se siguió, porque el usuario pidió implementar en la misma sesión. Los cambios pendientes eran la quita de ganaderos (D22) y la carpeta `imagenes-sistema/`, además de `wp-content/themes/campodata.zip`, que no es de esta spec y no se tocó.
+
+### C15 · "Inicio" estaba guardada desde el editor
+
+- **Qué decía la spec:** nada.
+- **Qué se hizo:** "Inicio" tenía una copia fija de la landing, guardada desde el editor el 2026-11-02 a las 16:38, y por eso la portada no mostraba ningún cambio de los patrones. Se comparó su texto con los patrones de ese día: solo tenía dos errores accidentales ("la tecnología y la que ya tiene", sin "maquinaria", y "Quiero unademo"). Se devolvió a `<!-- wp:pattern {"slug":"campodata/landing"} /-->`. La copia guardada sigue en las revisiones de la página (IDs 7 y 8).
+- **Por qué:** con una copia fija, la portada nunca toma los cambios del tema (README, "Qué vive en el código y qué en la base de datos").
+
+### C16 · Retoques distintos de lo previsto
+
+- **Qué decía la spec:** §4: en `kpis_inicio`, rehacer el "($)" tapado; en "Explícame", pintar la franja "DEMO".
+- **Qué se hizo:** en `kpis_inicio` el puntero no tapaba el "($)" y bastó pintar el fondo. "Explícame" se recortó antes de la franja (859 × 527).
+- **Por qué:** al ampliar se vio que el "($)" estaba entero. Recortar deja la ventana más limpia que un rectángulo vacío al pie.
+
+### C17 · En Para quién, la imagen va al pie de la tarjeta
+
+- **Qué decía la spec:** §6.2: entre el ícono y el título.
+- **Qué se hizo:** la imagen va después de la lista, justo antes de "Quiero una demo", y las dos quedan a la misma altura.
+- **Por qué:** las dos imágenes tienen proporciones muy distintas (1024 × 295 y 859 × 527), y arriba desalineaban los títulos de las tarjetas.
+
+### C18 · Por qué CampoData alineado arriba
+
+- **Qué decía la spec:** §6.5: la imagen del ciclo de 495 px bajo la comparación.
+- **Qué se hizo:** las dos columnas se alinean arriba y la imagen mide 420 px como máximo.
+- **Por qué:** centradas, la columna derecha (tabla e imagen) dejaba un hueco grande sobre el título de la izquierda.
+
+### C19 · Un texto más que prometía de más
+
+- **Qué decía la spec:** §7 no listaba la introducción de Para quién.
+- **Qué se hizo:** "CampoData ordena tus datos y te dice qué hacer con ellos" pasa a "…y te muestra, en simple, qué mirar".
+- **Por qué:** es la misma promesa que el análisis pide quitar (§0.5 de la spec).
+
+### C20 · Dos arreglos de `bin/check`
+
+- **Qué decía la spec:** nada.
+- **Qué se hizo:**
+  - la verificación de recursos externos solo mira los atributos `src` y `href` de verdad;
+  - el conteo de textos guía ya no corta el script cuando no queda ninguno.
+- **Por qué:** la ampliación del core trae `data-wp-bind--src="state.selectedImage.currentSrc"`, que se leía como una URL externa. Y con cero textos guía, `grep` devolvía 1 y, con `pipefail`, `bin/check` terminaba en silencio con código 1 (el error venía de la plantilla de Siete Colores).
+
+### C21 · No se corrió `bin/reset --yes`
+
+- **Qué decía la spec:** §12: `bin/reset --yes` deja todo en pie.
+- **Qué se hizo:** se corrieron `bin/setup` (no cambió nada), `bin/check` y `composer lint`, y la validación del editor (516 bloques, ninguno inválido).
+- **Por qué:** `bin/reset` borra la base local, y con ella la copia guardada de "Inicio" (C15) y lo que se haya cargado en Ajustes. Se puede correr cuando el usuario lo decida.
+
+---
+
+## Riesgos de ejecución de la spec 04 (§10)
+
+| # | Riesgo | Qué pasó |
+| --- | --- | --- |
+| R1 | Capturas blandas en alta densidad | Pendiente de ver en una pantalla real. Se muestran como máximo a su medida de origen y se pueden ampliar |
+| R2 | Un retoque deja marca o necesitaría inventar | No pasó: los cinco retoques se revisaron ampliados contra el original. Uno necesitó una segunda pasada (la sombra de la punta del puntero sobre el "7" de "$91,7 mill.") |
+| R3 | El banner se ve quieto sin `panel.svg` | No pasó: siguen la entrada, la flotación y la inclinación |
+| R4 | El alto salta al cambiar de pestaña | No pasó: las dos pantallas tienen la misma proporción fija |
+| R5 | La ampliación pide recursos externos | No pasó: es un módulo del core, local. Solo hubo el falso positivo de C20 |
+| R6 | La ampliación falla dentro de las pestañas | No pasó: las dos pantallas de Reportes tienen su botón de ampliar |
+| R7 | Hueco al quitar las cifras | No pasó |
+| R8 | Desborde del encabezado o de la página | No pasó: medido de a 1 px entre 320 y 1500 px, sin desborde ni scroll horizontal |

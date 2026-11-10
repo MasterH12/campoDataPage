@@ -15,10 +15,10 @@
 	<p class="alignwide is-style-ceja"><strong>05</strong>Por qué CampoData</p>
 	<!-- /wp:paragraph -->
 
-	<!-- wp:columns {"verticalAlignment":"center","align":"wide","style":{"spacing":{"blockGap":{"top":"var:preset|spacing|60","left":"var:preset|spacing|70"}}}} -->
-	<div class="wp-block-columns alignwide are-vertically-aligned-center">
-		<!-- wp:column {"verticalAlignment":"center"} -->
-		<div class="wp-block-column is-vertically-aligned-center">
+	<!-- wp:columns {"verticalAlignment":"top","align":"wide","style":{"spacing":{"blockGap":{"top":"var:preset|spacing|60","left":"var:preset|spacing|70"}}}} -->
+	<div class="wp-block-columns alignwide are-vertically-aligned-top">
+		<!-- wp:column {"verticalAlignment":"top"} -->
+		<div class="wp-block-column is-vertically-aligned-top">
 			<!-- wp:heading -->
 			<h2 class="wp-block-heading">Simple, práctica y pensada para predios como el tuyo</h2>
 			<!-- /wp:heading -->
@@ -33,7 +33,7 @@
 				<!-- /wp:list-item -->
 
 				<!-- wp:list-item -->
-				<li><strong>Recomendaciones accionables</strong> — No solo datos, sino qué hacer hoy con ellos.</li>
+				<li><strong>Te explicamos, no solo te mostramos</strong> — Qué mirar hoy y por qué cambió cada número.</li>
 				<!-- /wp:list-item -->
 
 				<!-- wp:list-item -->
@@ -51,8 +51,8 @@
 		</div>
 		<!-- /wp:column -->
 
-		<!-- wp:column {"verticalAlignment":"center"} -->
-		<div class="wp-block-column is-vertically-aligned-center">
+		<!-- wp:column {"verticalAlignment":"top"} -->
+		<div class="wp-block-column is-vertically-aligned-top">
 			<!-- wp:group {"className":"is-style-tarjeta cd-comparacion","style":{"spacing":{"padding":{"top":"0","right":"0","bottom":"0","left":"0"},"blockGap":"0"}},"layout":{"type":"default"}} -->
 			<div class="wp-block-group is-style-tarjeta cd-comparacion" style="padding-top:0;padding-right:0;padding-bottom:0;padding-left:0">
 				<!-- wp:paragraph {"className":"cd-comparacion-cabecera"} -->
@@ -60,10 +60,14 @@
 				<!-- /wp:paragraph -->
 
 				<!-- wp:table {"hasFixedLayout":true,"className":"is-style-comparacion"} -->
-				<figure class="wp-block-table is-style-comparacion"><table class="has-fixed-layout"><thead><tr><th scope="col">Característica</th><th scope="col">CampoData</th><th scope="col">Plataformas grandes</th></tr></thead><tbody><tr><td>Fácil de usar</td><td>Sí</td><td>Requiere capacitación</td></tr><tr><td>Recomendaciones diarias</td><td>Sí</td><td>Solo reportes</td></tr><tr><td>Se adapta a tu tecnología y maquinaria</td><td>Sí</td><td>Parcial</td></tr><tr><td>Precio para medianos</td><td>Sí</td><td>Costoso</td></tr><tr><td>Soporte local en español</td><td>Sí</td><td>Limitado</td></tr><tr><td>Sin instalación compleja</td><td>Sí</td><td>IT requerida</td></tr></tbody></table></figure>
+				<figure class="wp-block-table is-style-comparacion"><table class="has-fixed-layout"><thead><tr><th scope="col">Característica</th><th scope="col">CampoData</th><th scope="col">Plataformas grandes</th></tr></thead><tbody><tr><td>Fácil de usar</td><td>Sí</td><td>Requiere capacitación</td></tr><tr><td>Avisos diarios en palabras simples</td><td>Sí</td><td>Solo reportes</td></tr><tr><td>Se adapta a tu tecnología y maquinaria</td><td>Sí</td><td>Parcial</td></tr><tr><td>Precio para medianos</td><td>Sí</td><td>Costoso</td></tr><tr><td>Soporte local en español</td><td>Sí</td><td>Limitado</td></tr><tr><td>Sin instalación compleja</td><td>Sí</td><td>IT requerida</td></tr></tbody></table></figure>
 				<!-- /wp:table -->
 			</div>
 			<!-- /wp:group -->
+
+			<!-- wp:image {"lightbox":{"enabled":true},"sizeSlug":"full","linkDestination":"none","className":"cd-marco cd-adaptacion"} -->
+			<figure class="wp-block-image size-full cd-marco cd-adaptacion"><img src="<?php echo esc_url( get_theme_file_uri( 'assets/images/sistema/adaptacion-ciclo-reproductivo.webp' ) ); ?>" alt="“Cómo trabaja el campo”: el ciclo reproductivo se elige entre continuo, estacional y bi-estacional"/><figcaption class="wp-element-caption">Pensado para tu predio: le dices cómo trabaja tu campo, y CampoData arma el calendario de encastes, diagnósticos y secado, y mide contra tus metas.</figcaption></figure>
+			<!-- /wp:image -->
 		</div>
 		<!-- /wp:column -->
 	</div>

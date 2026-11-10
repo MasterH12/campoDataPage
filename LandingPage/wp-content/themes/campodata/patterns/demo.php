@@ -76,7 +76,6 @@
 		<legend>¿Quién eres?</legend>
 		<div>
 			<label><input type="radio" name="perfil" value="Dueño de lechería" data-perfil="lecheria" checked><span>Dueño de lechería</span></label>
-			<label><input type="radio" name="perfil" value="Ganadero" data-perfil="ganadero"><span>Ganadero</span></label>
 			<label><input type="radio" name="perfil" value="Asesor" data-perfil="asesor"><span>Asesor</span></label>
 			<label><input type="radio" name="perfil" value="Otro" data-perfil="otro"><span>Otro</span></label>
 		</div>
