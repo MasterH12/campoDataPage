@@ -58,7 +58,7 @@ El trabajo avanza `dev` → `testing` → `prod`. Un arreglo urgente se hace en 
 bin/                          scripts: wp, setup, reset y check
 config/plugins.txt            plugins de producción, con versión fija
 config/plugins-dev.txt        plugins solo para el entorno local
-imagenes-sistema/             imágenes del sistema, solo locales (ignorada en git: no se sube)
+imagenes-sistema/             imágenes del sistema y logos originales, solo locales (ignorada en git)
 config/contacto-inicial.json  datos de contacto con que bin/setup crea la opción (solo la primera vez)
 docs/DECISIONS.md             decisiones del proyecto
 docs/marca/                   el logo original (JPG) que entregó el cliente, de referencia
@@ -67,9 +67,9 @@ wp-content/themes/campodata/  tema de bloques: todo lo visual
 ├── theme.json                paleta, degradados, tipografías, tamaños, espaciados y valores propios
 ├── styles/                   estilos de sección (secciones/) y de bloque (bloques/) que solo usan theme.json
 ├── templates/, parts/        plantillas, encabezado y pie
-├── patterns/                 landing.php y una sección por archivo
+├── patterns/                 landing.php, una sección por archivo y apoyos.php (logos del pie)
 ├── assets/fonts/             Sora y DM Sans (woff2) con sus licencias OFL
-├── assets/images/            marca/ (emblema), ilustraciones/ (píxeles), iconos/ y sistema/ (pantallas del sistema)
+├── assets/images/            marca/ (emblema), ilustraciones/ (píxeles), iconos/, sistema/ (pantallas del sistema) y apoyos/ (logos de 3IE y Corfo)
 ├── assets/css/               sitio.css (todo el CSS propio) y editor.css (ajustes del editor)
 ├── assets/js/movimiento.js   el módulo de movimiento y el formulario de WhatsApp
 ├── inc/setup.php             patrones, estilos de bloque con CSS y el año del pie
@@ -115,7 +115,7 @@ Es una sola página con siete secciones. `patterns/landing.php` las ordena y cad
 
 - **Reordenar, agregar o quitar una sección:** edita la lista de `patterns/landing.php`. Una sección nueva es un archivo en `patterns/` con `Categories: campodata`, un `group` con `tagName` `section`, su ancla, su estilo de sección y una ceja (`<strong>NN</strong>Nombre` con el estilo `ceja`). Si cambia el orden de las anclas, actualiza `ANCLAS` en `bin/check`; si la sección va en el menú, agrega el enlace en `parts/header.html` y mide el encabezado entre 320 y 1500px (hoy el menú pasa al botón móvil bajo 861px).
 - **Reemplazar una imagen del sistema:** ver [Imágenes del sistema](#imágenes-del-sistema).
-- **Sin terceros:** la web no nombra sistemas ni empresas ajenas (DairyPlan, Excel, Power BI, la planta que recibe la leche…), ni en textos ni dentro de las capturas. Para hablar de con qué trabaja CampoData, el mensaje es que se adapta a la tecnología y la maquinaria de cada predio (DECISIONS D21). `bin/check` falla si la portada nombra alguno; la lista está en el script.
+- **Sin terceros:** la web no nombra sistemas ni empresas ajenas (DairyPlan, Excel, Power BI, la planta que recibe la leche…), ni en textos ni dentro de las capturas. Para hablar de con qué trabaja CampoData, el mensaje es que se adapta a la tecnología y la maquinaria de cada predio (DECISIONS D21). `bin/check` falla si la portada nombra alguno; la lista está en el script. Los logos de Corfo y 3IE del pie no cuentan: son quienes apoyan el proyecto, no sistemas con los que trabaja (ver [Logos de apoyo](#logos-de-apoyo-corfo-y-3ie)).
 - **Textos guía:** lo que está entre corchetes es contenido pendiente del cliente (hoy, lo propio de los asesores). `bin/check` avisa cuántos quedan.
 
 ## Identidad
@@ -173,6 +173,20 @@ Sin imagen, porque ninguna pantalla muestra lo que dicen: los pasos 1, 2 y 4 de 
 Las imágenes, salvo las del banner, se amplían al hacer clic (la ampliación del bloque `image` del core).
 
 **Qué no se publica:** nada de `4_datos_reales_censurados/` ni de `5_referencia_interna_NO_publicar/`, ni las capturas de reportes del sitio anterior (podían identificar un predio; `bin/check` falla si vuelve `assets/images/reportes/`). Las imágenes que esperan una corrección de la demo antes de usarse están en la spec 04, §9.
+
+## Logos de apoyo (Corfo y 3IE)
+
+CampoData es un proyecto apoyado por Corfo, con el Instituto 3IE y su Red de Mentores. El manual "Uso correcto de la marca 3IE, Red de Mentores y Corfo para emprendedores/as" obliga a poner el logo de Corfo en la web, en la zona inferior, y sus ejemplos agregan el de 3IE. Por eso el pie tiene una fila propia (patrón `campodata/apoyos`) con los tres logos en su versión oficial para fondo oscuro (DECISIONS D27):
+
+| Archivo en `assets/images/apoyos/` | Origen en `imagenes-sistema/` | Versión |
+| --- | --- | --- |
+| `logo-3ie.svg` | `Logo-Instituto-3IE/…/Logo 3IE Vector.ai`, mesa 3 | Completa, blanco con la tilde naranja ("fondo oscuro") |
+| `logo-red-de-mentores-3ie.svg` | `Logo-Red-de-Mentores-3IE-USM/…/Logos Red de Mentores 3IE vector.ai`, mesa 2 | "Fondos oscuros" |
+| `logo-corfo.svg` | `Logo-Corfo/…/Logo Corfo Vector.ai`, mesa 2 | "Proyecto apoyado por", blanco con la barra azul y roja |
+
+- **Formato:** SVG sacado del `.ai` (que es un PDF) con `pdftocairo -svg`, con el lienzo recortado al dibujo y los trazos redondeados. No se redibuja ni se recolorea nada: el manual lo prohíbe.
+- **Lo que no se hace:** deformarlos (en el CSS cada uno tiene solo un ancho), ponerles `cd-marco`, sombra, borde o lightbox, ni escribir "CORFO" o "3ie" en un texto o un `alt`. `bin/check` falla si pasa alguna de esas cosas o si falta un logo.
+- **Pendiente:** validar la aplicación con comunicaciones@3ie.cl. El logo de Corfo se puede quitar cuando el proyecto termine y se audite.
 
 ## Movimiento
 

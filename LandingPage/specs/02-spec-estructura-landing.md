@@ -6,7 +6,7 @@
 **Modelo:** la spec 02 de Siete Colores y `Clientes Web/FRAMEWORK-WORDPRESS.md` (§6)
 **Rama de trabajo:** `dev`
 **Depende de:** spec 01 implementada y en commits (commit `4f82a53`).
-**Versión:** 4 · 2026-11-09
+**Versión:** 5 · 2026-11-10
 
 ### Historial de decisiones
 
@@ -17,6 +17,7 @@
 | v2 | **La web no nombra sistemas ni empresas de terceros** (pedido del usuario: "nos podría meter en problemas"). Se quitan DairyPlan, Excel y Power BI de los textos, y de la captura "Producción Leche" se borran "WATTS" y "DP". Donde se nombraban, el mensaje pasa a ser que **CampoData se adapta a la tecnología y la maquinaria que tiene cada predio** (§0.13). Los textos nuevos de esta versión quedan confirmados (DECISIONS D21) |
 | v3 | **Se elimina el alcance de predios ganaderos**: la landing es solo para predios lecheros y asesores (DECISIONS D22). Sin tarjeta "Ganaderos" ni opción "Ganadero" en el formulario; el título del banner y el pie hablan de lechería. Donde la spec habla de ganaderos (§1.1, §2, §6, P1, P2, P16), manda esta versión |
 | v4 | La spec 04 reemplaza la ilustración del banner y las capturas de Reportes por pantallas del sistema con datos de demostración, quita las cifras del banner y corrige los textos que prometían más de lo que la app hace (DECISIONS D23 y D24). Donde esta spec dice otra cosa sobre el banner (§6.1), Reportes (§6.4), las imágenes (§11) o esos textos, manda la spec 04 |
+| v5 | El pie suma una fila con los logos de quienes apoyan el proyecto: Instituto 3IE, Red de Mentores 3IE y "Proyecto apoyado por Corfo", como pide su manual de marca (DECISIONS D27). Es una excepción a D21: no son sistemas de terceros |
 
 ---
 
@@ -439,6 +440,7 @@ El origen de cada texto va entre paréntesis (§0.4). Los textos (actual) llevan
   - **Izquierda:** la marca (igual que en el encabezado) y debajo "Gestión de datos para predios lecheros y ganaderos · Los Ríos y Los Lagos, Chile" (el actual dice "Gestión de datos para predios lecheros"; "y ganaderos" es propuesta).
   - **Centro:** los enlaces "Para quién", "Cómo funciona", "Reportes" y "Solicitar demo", en `small`.
   - **Derecha:** `social-links` con WhatsApp (`whatsapp_url`) y correo (`correo_url`), íconos de 22px en `base` que suben 2px al pasar el mouse. LinkedIn e Instagram se muestran solo si tienen URL (P10).
+- **Fila de apoyos** (patrón `campodata/apoyos`, v5), separada por un borde de 1px en blanco al 8%: los logos oficiales de Instituto 3IE, Red de Mentores 3IE y Corfo, en su versión para fondo oscuro, centrados, sin marco ni sombra (DECISIONS D27).
 - **Última línea**, separada por un borde de 1px en blanco al 8%: "© año CampoData SpA" (fuente `campodata/anio` más el texto "CampoData SpA").
 - Arriba del pie, una franja de 4px con el degradado `marca`.
 

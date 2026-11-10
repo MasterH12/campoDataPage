@@ -84,6 +84,9 @@ assets/images/sistema/beneficio-dias-de-alimento.webp 50
 assets/images/sistema/beneficio-sobras.webp 50
 assets/images/sistema/beneficio-dato-no-alcanza.webp 50
 assets/images/sistema/adaptacion-ciclo-reproductivo.webp 50
+assets/images/apoyos/logo-3ie.svg 40
+assets/images/apoyos/logo-red-de-mentores-3ie.svg 30
+assets/images/apoyos/logo-corfo.svg 12
 RECURSOS
 )
 faltantes=""
@@ -97,7 +100,7 @@ while read -r archivo maximo; do
 	fi
 done <<<"$recursos"
 if [ -z "$faltantes" ]; then
-	ok "Las tipografías, el emblema, el campo de píxeles y las imágenes del sistema están en el tema"
+	ok "Las tipografías, el emblema, el campo de píxeles, las imágenes del sistema y los logos de apoyo están en el tema"
 else
 	falla "Faltan en el tema:$faltantes"
 fi
@@ -216,6 +219,30 @@ if [ -z "$terceros" ]; then
 	ok "La portada no nombra sistemas de terceros"
 else
 	falla "La portada nombra sistemas de terceros: $terceros (ver D21 en docs/DECISIONS.md)"
+fi
+# Los logos de quienes apoyan el proyecto van en el pie, sin marco ni sombra (DECISIONS D27).
+pie=$(sed -n '/<footer/,/<\/footer>/p' "$html")
+logos_pie=$(grep -oE '<img[^>]*apoyos/[^>]*>' <<<"$pie" || true)
+sin_logo=""
+for logo in logo-3ie logo-red-de-mentores-3ie logo-corfo; do
+	grep -E "apoyos/$logo\.svg" <<<"$logos_pie" | grep -qE 'alt="[^"]+"' || sin_logo="$sin_logo $logo"
+done
+if [ -z "$sin_logo" ]; then
+	ok "El pie muestra los logos de 3IE, la Red de Mentores y Corfo, con texto alternativo"
+else
+	falla "Faltan en el pie, o van sin texto alternativo, los logos:$sin_logo (ver D27)"
+fi
+if grep -qE 'class="[^"]*(cd-logo-apoyo[^"]*cd-marco|cd-marco[^"]*cd-logo-apoyo)' "$html"; then
+	falla "Un logo de apoyo lleva cd-marco: el manual de marca no permite sombra ni marco (D27)"
+fi
+# El manual pide escribir "Corfo" y "3IE", nunca "CORFO" ni "3ie" (salvo en titulares en mayúsculas).
+# Se mira el texto visible (sin estilos, scripts ni etiquetas) y los alt.
+mal_escritos=$( (perl -0777 -pe 's/<(style|script)\b.*?<\/\1>//gs; s/<[^>]+>//g' "$html" | grep -oE '\b(CORFO|3ie|3iE|3Ie)\b' || true) | sort -u | paste -sd ',')
+mal_escritos="$mal_escritos$( (grep -oE 'alt="[^"]*"' "$html" | grep -oE '\b(CORFO|3ie|3iE|3Ie)\b' || true) | sort -u | paste -sd ',')"
+if [ -z "$mal_escritos" ]; then
+	ok "Corfo y 3IE se escriben como pide el manual de marca"
+else
+	falla "Corfo o 3IE mal escritos en la portada: $mal_escritos (D27)"
 fi
 # Textos que prometían más de lo que la app hace, o datos que podían identificar un predio (spec 04, §7).
 de_mas=$(grep -oE 'Baja 2 kg de soya|\+12 ?%|~2\.000 vacas' "$html" | sort -u | paste -sd ',' || true)

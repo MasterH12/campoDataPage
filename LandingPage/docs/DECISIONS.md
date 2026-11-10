@@ -248,6 +248,27 @@ Este proyecto sigue `Clientes Web/FRAMEWORK-WORDPRESS.md`. Las decisiones D01 a 
 - **Resultado:** 14 imágenes, 254 KB en total. La portada pesa 278 KB en la primera pantalla y 364 KB completa.
 - **Alternativas descartadas:** poner una imagen en cada tarjeta, aunque no corresponda; reescribir los textos de las tarjetas para que calcen con las imágenes (los textos los decide el cliente).
 
+### D27 · Los logos de Corfo y 3IE van en el pie
+
+*2026-11-10 · pedido del usuario, con el manual "Uso correcto de la marca 3IE, Red de Mentores y Corfo para emprendedores/as"*
+
+- **Contexto:** el manual obliga a los proyectos apoyados por Corfo a poner su logo en todo material de difusión, páginas web incluidas: en la zona inferior y respetando proporciones y área de resguardo. Sus ejemplos de sitio web ponen al lado el logo de 3IE, y el de la Red de Mentores 3IE es opcional. La landing no tenía ninguno. El usuario entregó los archivos oficiales (vector `.ai`, PNG y JPG) en `imagenes-sistema/` y pidió usar SVG cuando se pueda y, si no, JPG.
+- **Decisión:**
+  - **Dónde:** una fila propia en el pie, entre el menú y "© CampoData SpA", separada por una línea arriba y otra abajo. Lleva Instituto 3IE (versión completa), Red de Mentores 3IE y "Proyecto apoyado por Corfo", en ese orden, como en el ejemplo del manual. En el celular, 3IE va arriba y los otros dos debajo, centrados.
+  - **Versiones:** las oficiales para fondo oscuro, porque el pie es `noche`: 3IE blanco con la tilde naranja, Red de Mentores para fondos oscuros, y Corfo blanco con la barra azul y roja.
+  - **Archivos:** SVG sacados de la mesa de trabajo de cada `.ai`, sin redibujar nada. Se recortó el lienzo al dibujo, se redondearon los trazos a 0,1 punto y se quitaron paradas de degradado repetidas. En Chrome se ven igual que el vector original. Pesan 31, 21 y 7 KB, y están en `assets/images/apoyos/`.
+  - **Reglas del manual:** cada logo tiene solo un ancho en el CSS (15, 5,5 y 7,5 rem) y el alto sale del archivo, así que no se deforman. Van sin `cd-marco`, sombra, borde ni lightbox, y sin enlace.
+  - **Texto alternativo:** "Instituto 3IE: Instituto Internacional para la Innovación Empresarial, Universidad Técnica Federico Santa María", "Red de Mentores 3IE" y "Proyecto apoyado por Corfo". El manual pide escribir "Corfo" y "3IE", nunca "CORFO" ni "3ie".
+  - **Carga:** `inc/imagenes.php` ahora completa también las imágenes de `assets/images/apoyos/` y lee el ancho y el alto de los SVG. Se cargan diferidas, porque están al final.
+  - **Excepción a D21:** D21 prohíbe nombrar sistemas y empresas de terceros. Corfo y 3IE no son sistemas con los que trabaja CampoData: son quienes apoyan el proyecto, y mostrarlos es una obligación.
+  - **Verificación:** `bin/check` falla si falta uno de los tres logos en el pie, si uno no tiene texto alternativo, si uno lleva `cd-marco`, si un SVG pasa su peso máximo (40, 30 y 12 KB) o si la portada escribe "CORFO" o "3ie".
+- **Pendiente:** el manual pide validar la aplicación de la marca escribiendo a comunicaciones@3ie.cl. El logo de Corfo se puede quitar cuando el proyecto termine y se audite.
+- **Alternativas descartadas:**
+  - **JPG:** no tiene transparencia, y sobre el pie oscuro quedaría un rectángulo blanco.
+  - **PNG:** el usuario prefiere SVG, y los PNG pesan más y se ven peor ampliados.
+  - **La versión compacta de 3IE:** la completa cabe incluso a 320 px y es la del ejemplo web.
+  - **Enlazar los logos a los sitios de Corfo y 3IE:** el manual no lo pide, y sacaría al visitante de la landing.
+
 ---
 
 ## Cambios respecto de la spec 01

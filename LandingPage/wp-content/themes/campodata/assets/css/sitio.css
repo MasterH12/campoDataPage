@@ -277,6 +277,39 @@ html {
 	margin: 0;
 }
 
+/*
+ * Logos de quienes apoyan el proyecto (D27). El manual de marca pide no deformarlos, no
+ * agregarles sombra y dejarles aire: cada uno tiene solo un ancho (el alto sale del archivo),
+ * va sin marco y en una fila propia, separada del resto del pie.
+ */
+.cd-pie-apoyos {
+	padding-top: var(--wp--preset--spacing--50);
+	border-top: 1px solid var(--cd-linea-clara);
+}
+
+.cd-pie-apoyos .wp-block-image {
+	margin: 0;
+}
+
+.cd-pie-apoyos img {
+	display: block;
+	width: var(--cd-ancho-logo);
+	max-width: 100%;
+	height: auto;
+}
+
+.cd-logo-3ie {
+	--cd-ancho-logo: 15rem;
+}
+
+.cd-logo-red-de-mentores {
+	--cd-ancho-logo: 5.5rem;
+}
+
+.cd-logo-corfo {
+	--cd-ancho-logo: 7.5rem;
+}
+
 /* Ceja: "01", una mini barra con el degradado y el nombre de la sección. */
 .is-style-ceja {
 	display: flex;
