@@ -52,7 +52,7 @@ function campos_de_contacto(): array {
 		),
 		'zona'             => array(
 			'etiqueta' => 'Zona',
-			'ayuda'    => 'Por ejemplo: Los Ríos y Los Lagos, Chile.',
+			'ayuda'    => 'Dónde atiende CampoData. Por ejemplo: Chile.',
 			'tipo'     => 'texto',
 		),
 		'linkedin'         => array(

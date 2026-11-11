@@ -307,6 +307,17 @@ Este proyecto sigue `Clientes Web/FRAMEWORK-WORDPRESS.md`. Las decisiones D01 a 
 - **Decisión:** las 3 con una sección equivalente redirigen con 301 (`/#para-quien`, `/#demo` y `/#como`), las 5 de plantilla responden 410 con la plantilla 404 del tema, y `/sitemaps.xml` redirige a `/wp-sitemap.xml`. La tabla vive en `urls_del_sitio_anterior()` (`seo.php`) y solo actúa cuando nada del sitio responde en esa ruta. `bin/check` lee la misma tabla y prueba cada URL.
 - **Alternativas descartadas:** un 301 de todo a la portada (Google lo trata como un 404 encubierto); dejarlas en 404 (el 410 las saca antes del índice); reglas en el servidor (el hosting no está definido).
 
+### D32 · CampoData no se limita al sur de Chile
+
+*2026-11-11 · pedido del usuario después de la spec 05*
+
+- **Contexto:** la landing y sus datos presentaban a CampoData como algo del sur: "medianos productores del sur de Chile" en Por qué CampoData, "Los Ríos y Los Lagos, Chile" en el pie y como zona de contacto (que se muestra en Solicitar demo y es la zona de servicio de los datos estructurados), y "del sur de Chile" en el título que proponía la spec 05. El usuario pidió no limitar nada al sur de Chile.
+- **Decisión:**
+  - **Textos:** Por qué CampoData dice "Es una herramienta hecha para medianos productores de Chile." y el pie, "Gestión de datos para predios lecheros · Chile". Es lo mínimo: solo se quitó la región.
+  - **Zona de contacto:** "Chile", en `config/contacto-inicial.json` y en Ajustes → Datos de contacto del sitio local. Con eso, la zona de Solicitar demo y el `areaServed` de los datos estructurados dicen "Chile". La ayuda del campo ya no sugiere una región.
+  - **Título:** "CampoData | Software para predios lecheros", sin región (D28).
+- **Pendiente:** en un sitio que ya tenga los datos de contacto cargados, `bin/setup` no pisa la zona: hay que cambiarla a mano en Ajustes → Datos de contacto.
+
 ---
 
 ## Cambios respecto de la spec 01

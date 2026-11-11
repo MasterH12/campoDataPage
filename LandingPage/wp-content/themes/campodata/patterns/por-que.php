@@ -24,7 +24,7 @@
 			<!-- /wp:heading -->
 
 			<!-- wp:paragraph {"fontSize":"large"} -->
-			<p class="has-large-font-size">No es una plataforma genérica de datos. Es una herramienta hecha para medianos productores del sur de Chile.</p>
+			<p class="has-large-font-size">No es una plataforma genérica de datos. Es una herramienta hecha para medianos productores de Chile.</p>
 			<!-- /wp:paragraph -->
 
 			<!-- wp:list {"className":"is-style-lista-check"} -->

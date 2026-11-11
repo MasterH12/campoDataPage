@@ -13,6 +13,7 @@
 | v1 | Pedido del usuario (2026-11-10): mejorar el SEO de la landing con código. Quedan confirmados: **código propio en el mu-plugin**, sin plugins de SEO; **"CampoData SpA"** como nombre legal en los datos estructurados; y **el emblema actual es el logo**, así que no hay spec 03 y el ícono sale de él. El título y la descripción de §3 son **una propuesta**, por confirmar al revisar la spec (P1 y P2) |
 | v1 (ejecución) | El usuario pidió implementarla tal como está (2026-11-10): **quedan confirmados T1 y D1**. Se ejecutó el mismo día. Los desvíos están en `docs/DECISIONS.md`, C22 a C27: entre otros, la base local ya decía `blog_public` 1 y `bin/setup` lo escribe sin el filtro (C23), y una categoría sin entradas responde 404, para que `/category/uncategorized/` responda su 410 (C24) |
 | Pedido posterior | El usuario pidió que la pestaña diga CampoData (2026-11-11). El título pasa a **"CampoData | Software para predios lecheros"** (42 caracteres): la marca adelante y sin "del sur de Chile". Se cambió en `config/seo-inicial.json` y en Ajustes → SEO local. Detalle en DECISIONS D28 |
+| Pedido posterior | El usuario pidió no limitar nada al sur de Chile (2026-11-11). La zona de contacto pasa a "Chile" (y con ella el `areaServed` de §5, que en el ejemplo dice "Los Ríos y Los Lagos, Chile"), y P6 queda resuelta: el título no lleva región. También cambiaron dos textos visibles, Por qué CampoData y el pie, fuera del alcance original de esta spec. Detalle en DECISIONS D32 |
 
 ---
 
