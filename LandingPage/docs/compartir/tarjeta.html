@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es-CL">
+<head>
+<meta charset="utf-8">
+<title>Tarjeta para compartir · CampoData</title>
+<!--
+	Fuente de wp-content/themes/campodata/assets/images/compartir/campodata.jpg (spec 05, §4.2): la imagen
+	que muestran WhatsApp, LinkedIn y las demás redes al compartir la portada. Mide 1200 × 630.
+	Se exporta con bin/imagenes-de-marca. Si cambia el h1 del banner, cambia aquí también.
+
+	Es un archivo estático: los colores van escritos (framework, regla 6), y cada uno nombra su token
+	de theme.json. El emblema, la palabra y el título quedan dentro del cuadrado central de 630 × 630,
+	porque algunas apps muestran la vista previa recortada a un cuadrado.
+-->
+<style>
+	@font-face {
+		font-family: Sora;
+		src: url(../../wp-content/themes/campodata/assets/fonts/sora-latin-wght-normal.woff2) format("woff2");
+		font-weight: 100 800;
+	}
+
+	:root {
+		--noche: #061a2b; /* noche */
+		--primario: #034a87; /* primario (marino) */
+		--base: #fff; /* base */
+		--brote: #72c93c; /* brote */
+		--cielo: #53b0fd; /* cielo */
+		--marca: linear-gradient(90deg, #fccb04 0%, #72c93c 45%, #53b0fd 100%); /* degradado marca */
+	}
+
+	html,
+	body {
+		margin: 0;
+	}
+
+	body {
+		position: relative;
+		width: 1200px;
+		height: 630px;
+		overflow: hidden;
+		/* El degradado brillo-noche del banner, con el brillo al centro. */
+		background: radial-gradient(60% 55% at 50% 30%, rgba(3, 74, 135, 0.55) 0%, rgba(6, 26, 43, 0) 70%), var(--noche);
+		color: var(--base);
+		font-family: Sora, sans-serif;
+		text-align: center;
+	}
+
+	/* La retícula del banner (.cd-banner::after), que se apaga hacia los bordes. */
+	body::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		background-image: linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+		background-size: 48px 48px;
+		mask-image: radial-gradient(ellipse 60% 70% at 50% 40%, #000 15%, transparent 75%);
+	}
+
+	.marca {
+		position: absolute;
+		top: 48px;
+		left: 0;
+		right: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 22px;
+		margin: 0;
+		font-size: 64px;
+		font-weight: 700;
+		letter-spacing: -0.02em;
+		line-height: 1;
+		color: var(--brote);
+	}
+
+	/* El emblema en su ficha blanca, como en el encabezado (.cd-marca a::before). */
+	.marca::before {
+		content: "";
+		width: 92px;
+		height: 92px;
+		border-radius: 50%;
+		background: var(--base) url(../../wp-content/themes/campodata/assets/images/marca/emblema.webp) center / cover no-repeat;
+		box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+	}
+
+	.marca strong {
+		color: var(--cielo);
+		font-weight: inherit;
+	}
+
+	h1 {
+		position: absolute;
+		top: 176px;
+		left: 50%;
+		width: 620px;
+		margin: 0;
+		transform: translateX(-50%);
+		font-size: 46px;
+		font-weight: 600;
+		letter-spacing: -0.02em;
+		line-height: 1.14;
+		text-wrap: balance;
+	}
+
+	h1 strong {
+		background: var(--marca);
+		-webkit-background-clip: text;
+		background-clip: text;
+		color: transparent;
+		font-weight: inherit;
+	}
+
+	/* La pantalla Hoy de Producción en un marco como .cd-marco, cortada por el borde de abajo. */
+	img {
+		position: absolute;
+		top: 340px;
+		left: 50%;
+		width: 720px;
+		transform: translateX(-50%);
+		border: 1px solid rgba(255, 255, 255, 0.12);
+		border-radius: 20px;
+		background: var(--base);
+		box-shadow: 0 18px 60px rgba(3, 74, 135, 0.45);
+	}
+</style>
+</head>
+<body>
+	<p class="marca"><span>Campo<strong>Data</strong></span></p>
+	<h1>Gestión <strong>simple y efectiva</strong> para tu predio lechero</h1>
+	<img src="../../wp-content/themes/campodata/assets/images/sistema/banner-hoy.webp" alt="">
+</body>
+</html>

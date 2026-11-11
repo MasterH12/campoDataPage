@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+# Genera las imágenes de marca de la spec 05 desde sus fuentes y las deja en el tema:
+#   assets/images/marca/favicon-32.png y favicon-96.png, desde assets/images/marca/emblema.webp;
+#   assets/images/compartir/campodata.jpg (1200 × 630), desde docs/compartir/tarjeta.html.
+# Se corre a mano cuando cambia el emblema, el h1 del banner o la pantalla del banner, y los
+# resultados se versionan. Necesita el contenedor wordpress arriba (su PHP, con GD) y Chrome en el host.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+TEMA="wp-content/themes/campodata"
+EMBLEMA="$TEMA/assets/images/marca/emblema.webp"
+TARJETA="docs/compartir/tarjeta.html"
+COMPARTIR="$TEMA/assets/images/compartir/campodata.jpg"
+# Peso máximo de la imagen para compartir: WhatsApp no muestra imágenes de más de unos 300 KB.
+MAXIMO_COMPARTIR_KB=200
+
+detener() {
+	printf 'ERROR: %s\n' "$*" >&2
+	exit 1
+}
+
+docker compose ps --status running --services | grep -qx wordpress \
+	|| detener "El contenedor wordpress no está corriendo. Levántalo con docker compose up -d."
+[ -f "$EMBLEMA" ] || detener "No existe $EMBLEMA."
+[ -f "$TARJETA" ] || detener "No existe $TARJETA."
+
+chrome=""
+for candidato in google-chrome chromium chromium-browser; do
+	if command -v "$candidato" >/dev/null 2>&1; then
+		chrome="$candidato"
+		break
+	fi
+done
+[ -n "$chrome" ] || detener "No se encontró Chrome ni Chromium en el host: hace falta para capturar $TARJETA."
+
+# PHP del contenedor: lee la imagen de origen por la entrada estándar y escribe el resultado en la
+# salida estándar. Así los archivos los escribe el host y quedan a nombre del usuario, no de root.
+php_gd() {
+	local codigo="$1"
+	shift
+	docker compose exec -T wordpress php -r "$codigo" "$@"
+}
+
+# Ancho × alto y peso en KB de una imagen.
+medidas() { php_gd '$d = getimagesizefromstring( stream_get_contents( STDIN ) ); echo $d[0], "x", $d[1];' <"$1"; }
+kb() { echo $(($(wc -c <"$1") / 1024)); }
+
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
+
+echo "==> Ícono de la pestaña, desde el emblema"
+for lado in 32 96; do
+	destino="$TEMA/assets/images/marca/favicon-$lado.png"
+	# shellcheck disable=SC2016 # Es código PHP: las variables son de PHP, no de bash.
+	php_gd '
+		$origen = imagecreatefromstring( stream_get_contents( STDIN ) );
+		$lado   = (int) $argv[1];
+		$icono  = imagecreatetruecolor( $lado, $lado );
+		imagealphablending( $icono, false );
+		imagesavealpha( $icono, true );
+		imagefill( $icono, 0, 0, imagecolorallocatealpha( $icono, 0, 0, 0, 127 ) );
+		imagecopyresampled( $icono, $origen, 0, 0, 0, 0, $lado, $lado, imagesx( $origen ), imagesy( $origen ) );
+		imagepng( $icono, null, 9 );
+	' "$lado" <"$EMBLEMA" >"$tmp/icono.png"
+	[ "$(medidas "$tmp/icono.png")" = "${lado}x${lado}" ] || detener "favicon-$lado.png no salió de ${lado} × ${lado}."
+	mv "$tmp/icono.png" "$destino"
+	echo "$destino: ${lado} × ${lado}, $(kb "$destino") KB"
+done
+
+echo "==> Imagen para compartir, desde $TARJETA"
+# Perfil propio: no choca con un Chrome abierto. El tiempo virtual espera a que carguen las tipografías.
+"$chrome" --headless=new --hide-scrollbars --user-data-dir="$tmp/perfil" --virtual-time-budget=3000 \
+	--window-size=1200,630 --screenshot="$tmp/tarjeta.png" "file://$PWD/$TARJETA" >/dev/null 2>&1 \
+	|| detener "Chrome no pudo capturar $TARJETA."
+[ "$(medidas "$tmp/tarjeta.png")" = "1200x630" ] \
+	|| detener "La captura salió de $(medidas "$tmp/tarjeta.png") y no de 1200 × 630 (riesgo R1 de la spec 05)."
+mkdir -p "$(dirname "$COMPARTIR")"
+for calidad in 85 80 75; do
+	# shellcheck disable=SC2016 # Es código PHP: las variables son de PHP, no de bash.
+	php_gd '
+		$imagen = imagecreatefromstring( stream_get_contents( STDIN ) );
+		imageinterlace( $imagen, true );
+		imagejpeg( $imagen, null, (int) $argv[1] );
+	' "$calidad" <"$tmp/tarjeta.png" >"$tmp/tarjeta.jpg"
+	[ "$(kb "$tmp/tarjeta.jpg")" -le "$MAXIMO_COMPARTIR_KB" ] && break
+done
+[ "$(kb "$tmp/tarjeta.jpg")" -le "$MAXIMO_COMPARTIR_KB" ] \
+	|| detener "La imagen para compartir pesa $(kb "$tmp/tarjeta.jpg") KB aun con calidad 75 (máximo $MAXIMO_COMPARTIR_KB)."
+mv "$tmp/tarjeta.jpg" "$COMPARTIR"
+echo "$COMPARTIR: 1200 × 630, calidad $calidad, $(kb "$COMPARTIR") KB"
+
+echo
+echo "Listo. Revisa las imágenes antes de hacer commit."

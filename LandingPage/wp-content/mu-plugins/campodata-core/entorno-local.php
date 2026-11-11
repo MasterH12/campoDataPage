@@ -10,8 +10,7 @@ namespace CampoData\Core;
 
 defined( 'ABSPATH' ) || exit;
 
-// El sitio local nunca se indexa, diga lo que diga la base.
-add_filter( 'pre_option_blog_public', '__return_zero' );
+// Que el sitio local no se indexe lo resuelve seo.php, para todo entorno que no sea producción.
 
 // El sitio local nunca envía correos.
 add_filter( 'pre_wp_mail', __NAMESPACE__ . '\\anotar_correo_sin_enviar', 10, 2 );

@@ -87,6 +87,9 @@ assets/images/sistema/adaptacion-ciclo-reproductivo.webp 50
 assets/images/apoyos/logo-3ie.svg 40
 assets/images/apoyos/logo-red-de-mentores-3ie.svg 30
 assets/images/apoyos/logo-corfo.svg 12
+assets/images/marca/favicon-32.png 6
+assets/images/marca/favicon-96.png 24
+assets/images/compartir/campodata.jpg 200
 RECURSOS
 )
 faltantes=""
@@ -100,7 +103,7 @@ while read -r archivo maximo; do
 	fi
 done <<<"$recursos"
 if [ -z "$faltantes" ]; then
-	ok "Las tipografías, el emblema, el campo de píxeles, las imágenes del sistema y los logos de apoyo están en el tema"
+	ok "Las tipografías, el emblema, los íconos, la imagen para compartir, el campo de píxeles, las imágenes del sistema y los logos de apoyo están en el tema"
 else
 	falla "Faltan en el tema:$faltantes"
 fi
@@ -266,6 +269,232 @@ foreach ( array( "linkedin" => "LinkedIn", "instagram" => "Instagram" ) as $clav
 }')
 if [ -n "$redes_vacias" ]; then
 	aviso "Faltan en Ajustes → Datos de contacto: ${redes_vacias% }. Sus íconos no aparecen en el pie hasta que se completen."
+fi
+
+echo "SEO"
+# Lo que dice el <head> de la portada, leído con el parser HTML de PHP 8.4 del contenedor: una línea
+# "clave<TAB>valor" por dato. El JSON-LD se decodifica y se recorre ahí mismo (spec 05, §5).
+pedir / >/dev/null
+cabeza=$(sed -n '/<head>/,/<\/head>/p' "$html")
+# shellcheck disable=SC2016 # Es código PHP: las variables son de PHP, no de bash.
+extraido=$(docker compose exec -T wordpress php -r '
+$doc   = Dom\HTMLDocument::createFromString( stream_get_contents( STDIN ), LIBXML_NOERROR );
+$linea = static function ( string $clave, string $valor ): void {
+	echo $clave, "\t", str_replace( array( "\t", "\n" ), " ", $valor ), "\n";
+};
+$linea( "title", trim( $doc->querySelector( "title" )?->textContent ?? "" ) );
+$descripciones = $doc->querySelectorAll( "meta[name=description]" );
+$linea( "descripciones", (string) count( $descripciones ) );
+$linea( "description", count( $descripciones ) ? (string) $descripciones->item( 0 )->getAttribute( "content" ) : "" );
+foreach ( $doc->querySelectorAll( "meta[property^=\"og:\"], meta[name^=\"twitter:\"]" ) as $meta ) {
+	$linea( $meta->getAttribute( "property" ) ?: (string) $meta->getAttribute( "name" ), (string) $meta->getAttribute( "content" ) );
+}
+$scripts = $doc->querySelectorAll( "script[type=\"application/ld+json\"]" );
+$datos   = count( $scripts ) ? json_decode( $scripts->item( 0 )->textContent, true ) : null;
+$linea( "ld_cantidad", (string) count( $scripts ) );
+$linea( "ld_valido", is_array( $datos ) ? "1" : "0" );
+$tipos        = array();
+$prohibidas   = array();
+$organizacion = array();
+$recorrer     = static function ( $nodo ) use ( &$recorrer, &$tipos, &$prohibidas, &$organizacion ): void {
+	if ( ! is_array( $nodo ) ) {
+		return;
+	}
+	if ( isset( $nodo["@type"] ) ) {
+		$tipos[] = $nodo["@type"];
+		if ( "Organization" === $nodo["@type"] ) {
+			$organizacion = $nodo;
+		}
+	}
+	foreach ( $nodo as $clave => $valor ) {
+		if ( in_array( $clave, array( "offers", "aggregateRating", "review", "address", "foundingDate" ), true ) ) {
+			$prohibidas[] = $clave;
+		}
+		$recorrer( $valor );
+	}
+};
+$recorrer( $datos );
+$linea( "ld_tipos", implode( " ", array_unique( $tipos ) ) );
+$linea( "ld_prohibidas", implode( " ", array_unique( $prohibidas ) ) );
+$linea( "ld_legalName", (string) ( $organizacion["legalName"] ?? "" ) );
+$linea( "ld_email", (string) ( $organizacion["email"] ?? "" ) );
+$linea( "ld_telephone", (string) ( $organizacion["telephone"] ?? "" ) );
+' <"$html")
+# Valor de una clave de $extraido, y cuántos caracteres (no bytes) tiene un texto.
+dato() { awk -F'\t' -v clave="$1" '$1 == clave { print substr($0, length($1) + 2); exit }' <<<"$extraido"; }
+caracteres() { printf '%s' "$1" | LC_ALL=C.UTF-8 wc -m; }
+# shellcheck disable=SC2016 # Es código PHP: las variables son de PHP, no de bash.
+seo_titulo=$(wp eval '$d = get_option( "campodata_seo" ); echo is_array( $d ) ? ( $d["titulo"] ?? "" ) : "";')
+# shellcheck disable=SC2016 # Es código PHP: las variables son de PHP, no de bash.
+seo_descripcion=$(wp eval '$d = get_option( "campodata_seo" ); echo is_array( $d ) ? ( $d["descripcion"] ?? "" ) : "";')
+
+if [ -z "$seo_titulo" ]; then
+	aviso "Ajustes → SEO no tiene título: la portada usa el del core. Corre bin/setup o complétalo."
+elif [ "$(dato title)" = "$seo_titulo" ]; then
+	ok "El título de la portada es el de Ajustes → SEO ($(caracteres "$seo_titulo") caracteres)"
+else
+	falla "El título de la portada es \"$(dato title)\", pero en Ajustes → SEO dice \"$seo_titulo\""
+fi
+if [ -n "$seo_titulo" ] && [ "$(caracteres "$seo_titulo")" -gt 60 ]; then
+	aviso "El título tiene $(caracteres "$seo_titulo") caracteres: Google corta los de más de 60."
+fi
+if [ -z "$seo_descripcion" ]; then
+	aviso "Ajustes → SEO no tiene descripción: la portada no trae meta descripción. Corre bin/setup o complétala."
+elif [ "$(dato descripciones)" != 1 ]; then
+	falla "La portada tiene $(dato descripciones) meta descripciones (tiene que haber exactamente una)"
+elif [ "$(dato description)" = "$seo_descripcion" ]; then
+	ok "La meta descripción es la de Ajustes → SEO ($(caracteres "$seo_descripcion") caracteres)"
+else
+	falla "La meta descripción de la portada no es la de Ajustes → SEO"
+fi
+if [ -n "$seo_descripcion" ] && { [ "$(caracteres "$seo_descripcion")" -lt 70 ] || [ "$(caracteres "$seo_descripcion")" -gt 155 ]; }; then
+	aviso "La descripción tiene $(caracteres "$seo_descripcion") caracteres: lo recomendable es entre 70 y 155."
+fi
+
+faltan_og=""
+for etiqueta in og:type og:site_name og:locale og:url og:title og:description og:image og:image:width og:image:height og:image:alt twitter:card; do
+	[ -n "$(dato "$etiqueta")" ] || faltan_og="$faltan_og $etiqueta"
+done
+if [ -n "$faltan_og" ]; then
+	falla "Faltan en la portada las etiquetas para compartir:$faltan_og"
+elif [ "$(dato og:locale)" != es_CL ]; then
+	falla "og:locale es \"$(dato og:locale)\" y no es_CL"
+else
+	ok "La portada trae Open Graph (es_CL) y la tarjeta de Twitter"
+fi
+
+if [ "$(dato ld_cantidad)" != 1 ] || [ "$(dato ld_valido)" != 1 ]; then
+	falla "La portada tiene $(dato ld_cantidad) bloques de datos estructurados (tiene que haber uno, con JSON válido)"
+else
+	faltan_tipos=""
+	for tipo in Organization WebSite SoftwareApplication; do
+		[[ " $(dato ld_tipos) " == *" $tipo "* ]] || faltan_tipos="$faltan_tipos $tipo"
+	done
+	if [ -n "$faltan_tipos" ]; then
+		falla "Faltan en los datos estructurados:$faltan_tipos"
+	elif [ "$(dato ld_legalName)" != "CampoData SpA" ]; then
+		falla "El nombre legal de los datos estructurados es \"$(dato ld_legalName)\" y no \"CampoData SpA\""
+	else
+		ok "Los datos estructurados son JSON válido, con Organization (CampoData SpA), WebSite y SoftwareApplication"
+	fi
+fi
+if [ -n "$(dato ld_prohibidas)" ]; then
+	falla "Los datos estructurados traen datos que no se publican: $(dato ld_prohibidas) (spec 05, §5)"
+elif [ "$(dato ld_email)" != "$(wp eval 'echo CampoData\Core\dato_de_contacto( "correo" );')" ] \
+	|| [ "$(dato ld_telephone)" != "$(wp eval 'echo CampoData\Core\dato_de_contacto( "telefono" );')" ]; then
+	falla "El correo o el teléfono de los datos estructurados no son los de Ajustes → Datos de contacto"
+else
+	ok "Los datos estructurados no traen precios, calificaciones, reseñas, dirección ni fecha de fundación, y usan los datos de contacto"
+fi
+
+sobrantes=""
+while IFS='|' read -r patron nombre; do
+	if grep -qiE "$patron" <<<"$cabeza"; then
+		sobrantes="$sobrantes $nombre,"
+	fi
+done <<'SOBRANTES'
+application/rss\+xml|feeds
+EditURI|RSD
+rel=.shortlink|enlace corto
+oembed|oEmbed
+api\.w\.org|REST API
+SOBRANTES
+if curl -sS -D - -o /dev/null "$URL/" 2>/dev/null | grep -qi '^link:'; then
+	sobrantes="$sobrantes encabezados Link,"
+fi
+if [ -z "$sobrantes" ]; then
+	ok "El <head> no trae feeds, RSD, enlace corto, oEmbed ni la REST API, y la respuesta no trae encabezados Link"
+else
+	falla "Quedan en la portada:${sobrantes%,} (spec 05, §7)"
+fi
+
+imagen_og=$(dato og:image)
+if [ -n "$imagen_og" ]; then
+	respuesta=$(curl -sS -o "$html" -w '%{http_code} %{content_type}' "$imagen_og" 2>/dev/null || true)
+	# shellcheck disable=SC2016 # Es código PHP: las variables son de PHP, no de bash.
+	medida=$(docker compose exec -T wordpress php -r '$d = getimagesizefromstring( stream_get_contents( STDIN ) ); echo $d ? $d[0] . "x" . $d[1] : "";' <"$html")
+	if [ "$respuesta" = "200 image/jpeg" ] && [ "$medida" = 1200x630 ] && [ "$(dato og:image:width)x$(dato og:image:height)" = 1200x630 ]; then
+		ok "La imagen para compartir responde 200 y es un JPG de 1200 × 630"
+	else
+		falla "La imagen para compartir responde \"$respuesta\" y mide \"$medida\" (tiene que ser un JPG de 1200 × 630)"
+	fi
+fi
+
+mal_redirigidas=""
+for ruta in /feed/ /comments/feed/ '/?s=leche'; do
+	respuesta=$(curl -sS -o /dev/null -w '%{http_code} %{redirect_url}' "$URL$ruta" 2>/dev/null || true)
+	[ "$respuesta" = "301 $URL/" ] || mal_redirigidas="$mal_redirigidas $ruta ($respuesta)"
+done
+if [ -z "$mal_redirigidas" ]; then
+	ok "Los feeds y la búsqueda redirigen a la portada"
+else
+	falla "No redirigen a la portada con 301:$mal_redirigidas"
+fi
+
+# Las URLs del sitio anterior salen de seo.php: la tabla vive en un solo lugar (spec 05, §8).
+# shellcheck disable=SC2016 # Es código PHP: las variables son de PHP, no de bash.
+antiguas=$(wp eval 'foreach ( CampoData\Core\urls_del_sitio_anterior() as $ruta => $destino ) { echo $ruta, " ", $destino, "\n"; }')
+mal_antiguas=""
+while read -r ruta destino; do
+	[ -n "$ruta" ] || continue
+	# Las rutas con extensión (sitemaps.xml) se piden sin la barra final, como las pide un buscador.
+	[[ "$ruta" == *.* ]] && pedida="/$ruta" || pedida="/$ruta/"
+	respuesta=$(curl -sS -o "$html" -w '%{http_code} %{redirect_url}' "$URL$pedida" 2>/dev/null || true)
+	if [ -z "$destino" ]; then
+		{ [ "$respuesta" = "410 " ] && grep -q 'Página no encontrada' "$html"; } || mal_antiguas="$mal_antiguas $pedida ($respuesta)"
+	else
+		[ "$respuesta" = "301 $URL$destino" ] || mal_antiguas="$mal_antiguas $pedida ($respuesta)"
+	fi
+done <<<"$antiguas"
+if [ -z "$antiguas" ]; then
+	falla "No se pudo leer la tabla de URLs del sitio anterior (urls_del_sitio_anterior, seo.php)"
+elif [ -z "$mal_antiguas" ]; then
+	ok "Las $(grep -c . <<<"$antiguas") URLs del sitio anterior responden su 301 o su 410"
+else
+	falla "URLs del sitio anterior que no responden lo que dice la tabla:$mal_antiguas"
+fi
+
+# La base dice "indexar" y el mu-plugin lo apaga fuera de producción (spec 05, §9).
+# shellcheck disable=SC2016 # Es código PHP: las variables son de PHP, no de bash.
+en_la_base=$(wp eval 'remove_all_filters( "pre_option_blog_public" ); echo get_option( "blog_public" );')
+pedir / >/dev/null
+if [ "$en_la_base" != 1 ]; then
+	falla "En la base, blog_public vale \"$en_la_base\": una base migrada a producción no se indexaría. Corre bin/setup"
+elif ! grep -q "<meta name='robots' content='noindex" "$html"; then
+	falla "La portada local no trae noindex: el sitio local se podría indexar (ver seo.php)"
+else
+	ok "La base dice \"indexar\" y la portada local trae noindex: solo producción se indexa"
+fi
+# shellcheck disable=SC2016 # Es código PHP: las variables son de PHP, no de bash.
+sitemap=$(wp eval '
+remove_all_filters( "pre_option_blog_public" );
+add_filter( "pre_option_blog_public", static fn() => "1" );
+$servidor = wp_sitemaps_get_server();
+$servidor->register_sitemaps();
+foreach ( $servidor->registry->get_providers() as $proveedor ) {
+	$subtipos = $proveedor->get_object_subtypes();
+	foreach ( $subtipos ? array_keys( $subtipos ) : array( "" ) as $subtipo ) {
+		foreach ( $proveedor->get_url_list( 1, $subtipo ) as $url ) {
+			echo $url["loc"], "\n";
+		}
+	}
+}' | sort -u | paste -sd ' ')
+if [ "$sitemap" = "$URL/" ]; then
+	ok "Con el sitio simulado como público, el sitemap lista solo la portada"
+else
+	falla "Con el sitio simulado como público, el sitemap lista: ${sitemap:-nada} (se esperaba solo $URL/)"
+fi
+
+if [ "$(wp eval 'echo has_site_icon() ? 1 : 0;')" = 1 ]; then
+	aviso "Hay un ícono en Ajustes → General: manda ese, y no se revisa el del tema."
+else
+	iconos=$(grep -cE '<link rel="icon" href="[^"]+/assets/images/marca/favicon-(32|96)\.png\?ver=[0-9]+" sizes="(32x32|96x96)"' "$html" || true)
+	destino_ico=$(curl -sS -o /dev/null -w '%{redirect_url}' "$URL/favicon.ico" 2>/dev/null || true)
+	if [ "$iconos" -eq 2 ] && [[ "$destino_ico" == *"/assets/images/marca/favicon-32.png"* ]]; then
+		ok "La portada trae el ícono del tema (32 y 96 px) y /favicon.ico lleva a favicon-32.png"
+	else
+		falla "La portada trae $iconos de los 2 íconos del tema, y /favicon.ico lleva a \"$destino_ico\" (spec 05, §6)"
+	fi
 fi
 
 echo "Editor del sitio"

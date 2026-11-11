@@ -269,6 +269,44 @@ Este proyecto sigue `Clientes Web/FRAMEWORK-WORDPRESS.md`. Las decisiones D01 a 
   - **La versión compacta de 3IE:** la completa cabe incluso a 320 px y es la del ejemplo web.
   - **Enlazar los logos a los sitios de Corfo y 3IE:** el manual no lo pide, y sacaría al visitante de la landing.
 
+### D28 · SEO técnico con código propio
+
+*2026-11-10 · spec 05 · confirmado por el usuario*
+
+- **Contexto:** la landing no tenía meta descripción, vista previa al compartir, datos estructurados ni ícono de la pestaña, y su título ("CampoData – Gestión simple para tu predio") no decía "lechero". El sitio actual tampoco tiene nada de eso.
+- **Decisión:**
+  - **Dónde:** `campodata-core/seo.php` en el mu-plugin, porque sobrevive a un cambio de tema (D07). El ícono y la imagen para compartir viven en el tema; si falta uno de sus archivos, `seo.php` omite sus etiquetas.
+  - **Textos:** el título y la descripción viven en la opción `campodata_seo` (Ajustes → SEO), que `bin/setup` crea desde `config/seo-inicial.json` solo si no existe, como los datos de contacto (D20). Se usan en `<title>`, la meta descripción, Open Graph y el JSON-LD. Quedó D1 de la spec como descripción, y como título T1 con la marca adelante, a pedido del usuario (2026-11-11), para que la pestaña diga CampoData: "CampoData | Software para predios lecheros" (42 caracteres). La pestaña y Google muestran el mismo `<title>`, así que la marca va primero y las palabras clave después. La descripción es "Qué mirar hoy, cuánto alimento te queda y cómo va la producción de tu lechería, en simple. Para dueños de predios lecheros y asesores. Solicita una demo." (153). El título se escapa con `esc_html`, porque el core imprime tal cual lo que devuelve `pre_get_document_title`.
+  - **Vista previa al compartir:** Open Graph y `twitter:card`, solo en la portada, con una imagen de 1200 × 630 en JPG (69 KB, calidad 85) generada desde `docs/compartir/tarjeta.html`: el emblema, "CampoData", el `h1` y la pantalla Hoy de Producción, todo centrado.
+  - **Datos estructurados:** `Organization` ("CampoData SpA"), `WebSite` y `SoftwareApplication`, con el correo, el teléfono, la zona y las redes de los datos de contacto. Un dato vacío se omite. Sin precios, calificaciones, reseñas, dirección ni fecha de fundación. Se imprimen con `JSON_HEX_TAG`: ningún texto puede cerrar la etiqueta `<script>`.
+  - **Limpieza:** sin feeds, RSD, enlace corto, oEmbed ni enlaces a la REST API en el `<head>` ni en los encabezados. Feeds y búsqueda redirigen con 301 a la portada. El sitemap lista solo páginas.
+  - **Imágenes de marca:** `bin/imagenes-de-marca` genera el ícono y la imagen para compartir con el PHP (GD) del contenedor y el Chrome del host, y escribe los archivos desde el host, a nombre del usuario.
+- **Alternativas descartadas:** Yoast SEO, Rank Math o SEOPress (decenas de pantallas para una sola página, más peso y un plugin de producción que justificar, D08); los textos fijos en el código (cambiar una palabra exigiría desplegar); `LocalBusiness` (CampoData no atiende en un local); `Product` con precio (no hay uno público).
+
+### D29 · El emblema es el logo: no hay spec 03
+
+*2026-11-10 · decisión del usuario, spec 05*
+
+- **Contexto:** la spec 02 dejaba para una spec 03 el SVG oficial del logo y el ícono de la pestaña, y la spec 04 reservó ese número. Mientras tanto, `/favicon.ico` llevaba al logo de WordPress.
+- **Decisión:** el emblema actual (`emblema.webp`) es el logo de CampoData y no habrá spec 03. El ícono de la pestaña entró en la spec 05: el círculo del emblema, sin la palabra, en PNG de 32 px (pestañas) y 96 px (Google pide un múltiplo de 48), con sus esquinas transparentes. Por dentro el círculo es opaco, así que se ve igual sobre pestañas claras y oscuras. Se imprime con la receta de Siete Colores (framework, §7): `?ver=`, `/favicon.ico` redirigido al de 32 y prioridad para un ícono cargado en Ajustes → General.
+- **Alternativas descartadas:** el logo completo, con la palabra: a 32 px la palabra mide unos 3 px de alto y no se lee, el círculo se achica, y el JPG trae fondo blanco, que en pestañas oscuras es un cuadrado (se comparó el 2026-11-10).
+
+### D30 · Indexación por entorno
+
+*2026-11-10 · spec 05*
+
+- **Contexto:** `bin/setup` pedía `blog_public` 0, y `entorno-local.php` forzaba 0 en local. Si una base con 0 llegaba a producción, Google no indexaba el sitio y nada lo avisaba.
+- **Decisión:** la base dice "indexar" (`blog_public` 1) y `seo.php` lo apaga en todo entorno que no sea `production`: local, `development` y `staging`. La regla salió de `entorno-local.php`. WordPress considera producción a todo sitio que no define `WP_ENVIRONMENT_TYPE`, así que un servidor de pruebas tiene que definirlo como `staging` (README, "SEO"). `bin/check` falla si la base vale 0 o si la portada local no trae `noindex`.
+- **Alternativas descartadas:** dejar 0 y cambiarlo a mano al publicar.
+
+### D31 · URLs del sitio anterior
+
+*2026-11-10 · spec 05*
+
+- **Contexto:** el sitemap de campodata.cl (medido el 2026-11-10) lista, además de la portada, 8 URLs de una plantilla en inglés, todas en 200: `/about/`, `/contact/`, `/services/`, `/blog/`, `/sample-page/`, dos entradas y `/category/uncategorized/`.
+- **Decisión:** las 3 con una sección equivalente redirigen con 301 (`/#para-quien`, `/#demo` y `/#como`), las 5 de plantilla responden 410 con la plantilla 404 del tema, y `/sitemaps.xml` redirige a `/wp-sitemap.xml`. La tabla vive en `urls_del_sitio_anterior()` (`seo.php`) y solo actúa cuando nada del sitio responde en esa ruta. `bin/check` lee la misma tabla y prueba cada URL.
+- **Alternativas descartadas:** un 301 de todo a la portada (Google lo trata como un 404 encubierto); dejarlas en 404 (el 410 las saca antes del índice); reglas en el servidor (el hosting no está definido).
+
 ---
 
 ## Cambios respecto de la spec 01
@@ -462,3 +500,58 @@ Sin cambios: la implementación sigue la spec 01 (con la corrección de D13 ya i
 | R6 | La ampliación falla dentro de las pestañas | No pasó: las dos pantallas de Reportes tienen su botón de ampliar |
 | R7 | Hueco al quitar las cifras | No pasó |
 | R8 | Desborde del encabezado o de la página | No pasó: medido de a 1 px entre 320 y 1500 px, sin desborde ni scroll horizontal |
+
+---
+
+## Cambios respecto de la spec 05
+
+### C22 · `bin/setup` escribe `blog_public` en 1 (cambia la spec 01)
+
+- **Qué decía la spec 01:** §6, `bin/setup` fija `blog_public` en 0, y `entorno-local.php` lo fuerza a 0 en local.
+- **Qué se hizo:** lo pidió la spec 05, §9: la base dice 1 y la regla de no indexar pasó a `seo.php`, para todo entorno que no sea producción (D30).
+- **Por qué:** una base con 0 que llega a producción deja el sitio fuera de Google sin ningún aviso.
+
+### C23 · `blog_public` se escribe sin el filtro, y la base ya decía 1
+
+- **Qué decía la spec:** §9 y §10.1: `blog_public 1` en la lista de opciones de `bin/setup`.
+- **Qué se hizo:** `bin/setup` lo escribe con `wp eval`, quitando antes el filtro `pre_option_blog_public`.
+- **Por qué:** con el filtro, `update_option` cree que el valor guardado es 0. Se encontró que **la base local siempre tuvo 1**: el `blog_public 0` de antes nunca escribió nada, porque `update_option` comparaba 0 con 0 y no hacía nada. Ahora `wp option update blog_public 1` sí intentaba escribir, la base no cambiaba ninguna fila y WP-CLI lo daba por error ("Could not update option"), lo que cortaba `bin/setup`. Por la misma razón, guardar Ajustes → Lectura en local no puede devolver la base a 0: el riesgo R8 no puede pasar.
+
+### C24 · Una categoría sin entradas responde 404
+
+- **Qué decía la spec:** §8: las URLs del sitio anterior se manejan solo si la consulta es un 404.
+- **Qué se hizo:** en `seo.php`, una categoría, etiqueta o taxonomía sin entradas pasa a ser un 404 antes de revisar la tabla.
+- **Por qué:** la instalación crea la categoría "Uncategorized" (`/category/uncategorized/`), y WordPress muestra el archivo de una categoría que existe aunque esté vacío: respondía 200 con "No hay publicaciones para mostrar", una página sin contenido que se podría indexar. Las fechas, etiquetas y autores ya respondían 404. Ahora esa URL responde su 410, como dice la tabla.
+
+### C25 · Se empezó con la spec sin commit
+
+- **Qué decía la spec:** §0.2: si hay cambios sin commit de trabajos anteriores, avisar antes de seguir.
+- **Qué se hizo:** se siguió. Lo único sin commit era la propia spec 05, y el usuario pidió implementarla en la misma sesión (como C01).
+
+### C26 · No se corrió `bin/reset --yes`
+
+- **Qué decía la spec:** §13: `bin/reset --yes` deja todo en pie sin pasos manuales.
+- **Qué se hizo:** se corrió `bin/setup` dos veces (la segunda no cambió nada), `bin/check` y `composer lint`.
+- **Por qué:** como en C21, `bin/reset` borra la base local y lo que se haya cargado en Ajustes. Se puede correr cuando el usuario lo decida.
+
+### C27 · El editor no se abrió en un navegador
+
+- **Qué decía la spec:** §13: el editor de "Inicio" y el Editor del sitio funcionan igual, con todos los bloques válidos.
+- **Qué se hizo:** se verificó que la REST API responde (200) y que ni los patrones, ni las partes, ni las plantillas cambiaron. Ajustes → SEO se probó de punta a punta con el formulario del panel.
+- **Por qué:** la spec solo quita enlaces del `<head>` público (`wp_head`), que el panel no usa: el editor llega a la REST API por `wpApiSettings`. Queda abrir "Inicio" en el editor una vez, para confirmarlo.
+
+---
+
+## Riesgos de ejecución de la spec 05 (§11)
+
+| # | Riesgo | Qué pasó |
+| --- | --- | --- |
+| R1 | Chrome captura la tarjeta con otra medida | No pasó: la captura sale de 1200 × 630. `bin/imagenes-de-marca` igual lo verifica y se detiene si no |
+| R2 | El JPG pasa los 200 KB | No pasó: 69 KB con calidad 85 |
+| R3 | A 32 px el emblema no se distingue | No pasó: se reconocen la espiga, la vaca y los colores, en pestañas claras y oscuras |
+| R4 | `pre_get_document_title` no cambia el título | No pasó |
+| R5 | La redirección de la búsqueda rompe el panel o el editor | No pasó: `template_redirect` no corre en el panel, y el editor busca por la REST API |
+| R6 | Quitar el enlace a la REST API rompe algo | No pasó: la REST API responde y el panel no usa ese enlace (ver C27) |
+| R7 | No se pueden simular los sitemaps de un sitio público | No pasó: con el filtro en 1 y `register_sitemaps()`, el sitemap lista solo la portada |
+| R8 | Guardar Ajustes → Lectura en local devuelve la base a 0 | No puede pasar (C23) |
+| R9 | Una red social muestra una vista previa vieja | Se verá al publicar (Anexo A de la spec) |

@@ -107,8 +107,11 @@ time_format H:i
 start_of_week 1
 default_comment_status closed
 default_ping_status closed
-blog_public 0
 OPCIONES
+# La base dice "indexar" (blog_public 1): así una base migrada a producción queda indexable. Fuera de
+# producción, el mu-plugin lo apaga (seo.php). Se escribe sin ese filtro: con él, WordPress cree que
+# el valor guardado es 0, y wp option update falla cuando la base ya dice 1 (spec 05, §9).
+wp eval 'remove_all_filters( "pre_option_blog_public" ); update_option( "blog_public", "1" );'
 wp option update blogdescription "$LEMA" --quiet
 echo "Lema, zona horaria, formatos de fecha, comentarios e indexación al día."
 
@@ -177,6 +180,15 @@ if [ -n "$(wp option list --search=campodata_contacto --field=option_name)" ]; t
 else
 	wp option add campodata_contacto "$(cat config/contacto-inicial.json)" --format=json --quiet
 	echo "Creados desde config/contacto-inicial.json."
+fi
+
+paso "SEO"
+# Solo la primera vez: después se editan en Ajustes → SEO y no se pisan.
+if [ -n "$(wp option list --search=campodata_seo --field=option_name)" ]; then
+	echo "Ya existen: se editan en Ajustes → SEO."
+else
+	wp option add campodata_seo "$(cat config/seo-inicial.json)" --format=json --quiet
+	echo "Creados desde config/seo-inicial.json."
 fi
 
 paso "Portada"

@@ -18,7 +18,7 @@ cp .env.example .env
 bin/setup
 ```
 
-`bin/setup` levanta los contenedores, instala WordPress en español de Chile, configura el sitio, instala los plugins declarados, activa el tema, crea los datos de contacto iniciales y arma la portada con la landing. Al terminar muestra la URL (por defecto `http://localhost:8081`) y el usuario administrador. La contraseña es la de `.env`.
+`bin/setup` levanta los contenedores, instala WordPress en español de Chile, configura el sitio, instala los plugins declarados, activa el tema, crea los datos de contacto y los textos de SEO iniciales y arma la portada con la landing. Al terminar muestra la URL (por defecto `http://localhost:8081`) y el usuario administrador. La contraseña es la de `.env`.
 
 `bin/setup` se puede correr las veces que sea: no duplica nada ni borra contenido. Córrelo de nuevo después de cambiar `config/plugins*.txt` o `WP_PORT`, o si se cortó a medias.
 
@@ -55,13 +55,15 @@ El trabajo avanza `dev` → `testing` → `prod`. Un arreglo urgente se hace en 
 ## Dónde va cada cosa
 
 ```
-bin/                          scripts: wp, setup, reset y check
+bin/                          scripts: wp, setup, reset, check e imagenes-de-marca
 config/plugins.txt            plugins de producción, con versión fija
 config/plugins-dev.txt        plugins solo para el entorno local
 imagenes-sistema/             imágenes del sistema y logos originales, solo locales (ignorada en git)
 config/contacto-inicial.json  datos de contacto con que bin/setup crea la opción (solo la primera vez)
+config/seo-inicial.json       título y descripción para buscadores, igual que los datos de contacto
 docs/DECISIONS.md             decisiones del proyecto
 docs/marca/                   el logo original (JPG) que entregó el cliente, de referencia
+docs/compartir/tarjeta.html   fuente de la imagen para compartir (ver SEO)
 specs/                        specs numeradas
 wp-content/themes/campodata/  tema de bloques: todo lo visual
 ├── theme.json                paleta, degradados, tipografías, tamaños, espaciados y valores propios
@@ -69,13 +71,13 @@ wp-content/themes/campodata/  tema de bloques: todo lo visual
 ├── templates/, parts/        plantillas, encabezado y pie
 ├── patterns/                 landing.php, una sección por archivo y apoyos.php (logos del pie)
 ├── assets/fonts/             Sora y DM Sans (woff2) con sus licencias OFL
-├── assets/images/            marca/ (emblema), ilustraciones/ (píxeles), iconos/, sistema/ (pantallas del sistema) y apoyos/ (logos de 3IE y Corfo)
+├── assets/images/            marca/ (emblema e ícono de la pestaña), compartir/ (imagen para compartir), ilustraciones/ (píxeles), iconos/, sistema/ (pantallas del sistema) y apoyos/ (logos de 3IE y Corfo)
 ├── assets/css/               sitio.css (todo el CSS propio) y editor.css (ajustes del editor)
 ├── assets/js/movimiento.js   el módulo de movimiento y el formulario de WhatsApp
 ├── inc/setup.php             patrones, estilos de bloque con CSS y el año del pie
-└── inc/recursos.php          carga el CSS y el JS, el interruptor del movimiento y la precarga de tipografías
+└── inc/recursos.php          carga el CSS y el JS, el interruptor del movimiento, la precarga de tipografías y el ícono de la pestaña
 wp-content/mu-plugins/        plugin de funcionalidad: lo que no es visual
-└── campodata-core/           seguridad.php, contacto.php y entorno-local.php
+└── campodata-core/           seguridad.php, contacto.php, seo.php y entorno-local.php
 compose.yaml                  entorno local y versiones de WordPress, PHP, WP-CLI y MariaDB
 ```
 
@@ -83,7 +85,7 @@ compose.yaml                  entorno local y versiones de WordPress, PHP, WP-CL
 
 **Tema.** `theme.json` es la fuente única de los tokens de diseño: colores (ver [Identidad](#identidad)), tamaños de fuente (`x-small` a `xx-large`), espaciados (`20` a `80`) y valores propios en `settings.custom` (radios, movimiento, alto del encabezado y brillos), que el CSS usa como `--wp--custom--…`. En el código, el contenido y los patrones, los colores, tamaños y espaciados se usan **siempre por su token**, nunca con valores fijos: así, un cambio de marca solo cambia valores en `theme.json`. Quien edita contenido solo puede elegir entre esos tokens. Cada sección de la landing es un patrón en `patterns/`. Los textos van fijos, en español.
 
-**Plugin de funcionalidad.** `campodata-core` es un plugin *must-use*: WordPress lo carga siempre y no se puede desactivar desde `wp-admin`. Ahí va lo que tiene que sobrevivir a un cambio de tema. Hoy tiene la seguridad básica (XML-RPC, versión de WordPress oculta, usuarios ocultos, sin emojis desde `s.w.org`), los [datos de contacto](#datos-de-contacto) y las protecciones del entorno local: el sitio local nunca se indexa ni envía correos, y los correos quedan anotados en `debug.log`.
+**Plugin de funcionalidad.** `campodata-core` es un plugin *must-use*: WordPress lo carga siempre y no se puede desactivar desde `wp-admin`. Ahí va lo que tiene que sobrevivir a un cambio de tema. Hoy tiene la seguridad básica (XML-RPC, versión de WordPress oculta, usuarios ocultos, sin emojis desde `s.w.org`), los [datos de contacto](#datos-de-contacto), el [SEO](#seo) y las protecciones del entorno local: fuera de producción el sitio nunca se indexa, y en local no envía correos (quedan anotados en `debug.log`).
 
 ### Qué vive en el código y qué en la base de datos
 
@@ -141,7 +143,7 @@ El degradado `marca` (espiga → brote → cielo) va solo en lo destacado del t�
 
 **Tipografías:** Sora (títulos) y DM Sans (texto), servidas desde `assets/fonts/` (Fontsource 5.3.0, licencia OFL).
 
-**Logo:** hoy el emblema es un recorte del JPG entregado (`assets/images/marca/emblema.webp`), y la palabra "CampoData" se escribe con Sora en dos colores. El SVG oficial y el ícono de la pestaña llegan en la spec 03.
+**Logo:** el emblema (`assets/images/marca/emblema.webp`, un recorte del JPG entregado) es el logo de CampoData, y la palabra "CampoData" se escribe con Sora en dos colores. No hay una spec 03 pendiente: el ícono de la pestaña sale del emblema, sin la palabra, que a 32 px no se leería (spec 05, DECISIONS D29).
 
 ## Imágenes del sistema
 
@@ -215,6 +217,42 @@ Todo es una mejora progresiva: sin JS, o con movimiento reducido en el sistema, 
 ## Datos de contacto
 
 Se editan en **Ajustes → Datos de contacto** (WhatsApp, mensaje inicial, teléfono, correo, asunto del correo, zona, LinkedIn e Instagram) y se muestran solos en los botones y los datos de la sección "Solicitar demo", en el formulario de WhatsApp y en los íconos del pie. Una red sin URL no aparece. `bin/setup` crea la opción desde `config/contacto-inicial.json` solo si no existe: nunca pisa lo que se cambió en Ajustes. El formulario no envía nada a un servidor: arma el mensaje y abre WhatsApp.
+
+## SEO
+
+Todo con código propio, sin plugins de SEO (spec 05, DECISIONS D28). Lo que no depende del tema está en `campodata-core/seo.php`. El ícono y la imagen para compartir están en el tema.
+
+**Título y descripción.** Se editan en **Ajustes → SEO**, que muestra cuántos caracteres tiene cada texto: el título, hasta 60, y la descripción, entre 70 y 155. Se usan en la portada, en `<title>`, la meta descripción, la vista previa al compartir y los datos estructurados. `bin/setup` crea la opción desde `config/seo-inicial.json` solo si no existe, igual que los datos de contacto.
+
+**Qué lleva el `<head>` de la portada:**
+
+- el título y la meta descripción de Ajustes → SEO;
+- la vista previa al compartir (Open Graph y `twitter:card`), con `assets/images/compartir/campodata.jpg` (1200 × 630, 200 KB como máximo);
+- los datos estructurados (JSON-LD): `Organization` ("CampoData SpA"), `WebSite` y `SoftwareApplication`. El correo, el teléfono, la zona y las redes salen de Ajustes → Datos de contacto, y un dato vacío se omite. Nunca llevan precios, calificaciones, reseñas, dirección ni fecha de fundación: no se inventan;
+- el ícono de la pestaña: el emblema en 32 y 96 px (`assets/images/marca/favicon-*.png`). `/favicon.ico` lleva al de 32. Un ícono cargado en Ajustes → General manda sobre el del tema.
+
+No lleva feeds, RSD, enlace corto, oEmbed ni la REST API (que sigue funcionando para el editor). `/feed/`, `/comments/feed/` y la búsqueda (`/?s=`) redirigen a la portada con un 301, y una categoría sin entradas responde 404. El sitemap del core (`/wp-sitemap.xml`) lista solo páginas.
+
+**Regenerar el ícono y la imagen para compartir:** `bin/imagenes-de-marca`. Lee `emblema.webp` y `docs/compartir/tarjeta.html`, y deja los tres archivos en el tema. Necesita el contenedor `wordpress` arriba y Chrome (o Chromium) en el host. Córrelo si cambia el emblema, el `h1` del banner (cámbialo también en `tarjeta.html`) o la pantalla del banner, y revisa las imágenes antes de hacer commit.
+
+**Indexación por entorno.** La base dice "indexar" (`bin/setup` escribe `blog_public` en 1) y `seo.php` lo apaga en todo entorno que no sea `production`: así una base migrada a producción queda indexable, y ni el sitio local ni uno de pruebas se indexan. WordPress considera producción a todo sitio que no define `WP_ENVIRONMENT_TYPE`: **un servidor de pruebas tiene que definirlo como `staging`**. En local, Ajustes → Lectura muestra marcada la casilla "Disuadir a los motores de búsqueda": es el filtro, no la base. En local no hay sitemap (el core lo apaga cuando el sitio no es público); `bin/check` lo revisa simulando un sitio público.
+
+**URLs del sitio anterior.** campodata.cl tiene indexadas URLs de una plantilla. Cuando la landing lo reemplace, responden así (la tabla está en `urls_del_sitio_anterior()`, en `seo.php`, y solo actúa si nada del sitio responde en esa ruta):
+
+| URL anterior | Respuesta |
+| --- | --- |
+| `/about/`, `/services/`, `/contact/` | 301 a `/#para-quien`, `/#como` y `/#demo` |
+| `/blog/`, `/sample-page/`, `/2026/01/12/hello-world/`, `/2026/01/13/unlocking-the-power-of-data-…/`, `/category/uncategorized/` | 410 (ya no existen) |
+| `/sitemaps.xml` | 301 a `/wp-sitemap.xml` |
+
+**Al publicar** (para la spec de despliegue; detalle en la spec 05, Anexo A):
+
+1. `http://` y `www.` redirigen con 301 a `https://campodata.cl/` (hoy el sitio actual responde en las tres).
+2. `WP_ENVIRONMENT_TYPE` es `production` o no se define; `home` y `siteurl` son `https://campodata.cl`.
+3. La portada no trae `noindex`, y `robots.txt` trae `Sitemap: https://campodata.cl/wp-sitemap.xml`.
+4. En Search Console: antes de cambiar el sitio, exportar las páginas con visitas del sitio anterior y sumar a la tabla las que falten; después, enviar `/wp-sitemap.xml`, quitar `/sitemaps.xml` y pedir que indexe la portada.
+5. Probar los datos estructurados con la prueba de resultados enriquecidos de Google, y la vista previa compartiendo la URL por WhatsApp y en los depuradores de Facebook y LinkedIn.
+6. Las URLs del sitio anterior responden su 301 o su 410.
 
 ## El Editor del sitio y Create Block Theme
 
